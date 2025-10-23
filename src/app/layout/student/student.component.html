@@ -1,0 +1,153 @@
+<div class="layout p-4 sm:p-6 space-y-4">
+  <!-- Header + Add Button + Search -->
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+    <h1 class="text-3xl font-bold">Students</h1>
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+      <button (click)="openAddModal()"
+        class="bg-blue-600 hover:bg-blue-500 text-white gap-2 font-medium py-2 px-4 rounded-lg shadow-md flex items-center">
+        <span class="material-symbols-outlined"> add </span>
+        Add Student
+      </button>
+
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterStudents()" placeholder="Search students..."
+        class="w-full sm:w-64 border border-gray-300 rounded px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500 outline-none" />
+    </div>
+  </div>
+
+  <!-- Students Cards -->
+  <div class="space-y-3 mt-4">
+    <div *ngFor="let student of filteredStudents" class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+      <div class="flex flex-col justify-between">
+        <!-- Student Info -->
+        <div class="space-y-2">
+          <div class="flex gap-2">
+            <span class="font-semibold">Name:</span>
+            <span>{{ student.name }}</span>
+          </div>
+          <div class="flex gap-2">
+            <span class="font-semibold">Email:</span>
+            <span>{{ student.email }}</span>
+          </div>
+          <div class="flex gap-2">
+            <span class="font-semibold">Gender:</span>
+            <span>{{ student.gender }}</span>
+          </div>
+          <div *ngIf="student.phone" class="flex gap-2">
+            <span class="font-semibold">Phone:</span>
+            <span>{{ student.phone }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 mt-3 justify-end">
+          <button (click)="editStudent(student)" class="text-black hover:text-blue-500 flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">
+              edit_document
+            </span>
+            <span class="text-sm">Edit</span>
+          </button>
+          <button (click)="deleteStudent(student.id)" class="text-red-600 hover:text-blue-500 flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm"> delete </span>
+            <span class="text-sm">Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="showModal" class="fixed inset-0 backdrop-blur-sm bg-black/10 flex items-center justify-center p-4 z-50">
+
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+      <div class="border-b px-4 py-4 flex justify-between items-center">
+        <h3 class="text-lg font-medium">
+          {{ isEditMode ? "Edit Student" : "Add Student" }}
+        </h3>
+        <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700 text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <form (ngSubmit)="isEditMode ? updateStudent() : addStudent()">
+          <!-- Name -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Name</label>
+            <input [(ngModel)]="currentStudent.name" name="name" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm" />
+            <div *ngIf="errors.name" class="text-red-500 text-sm mt-1">
+              {{ errors.name }}
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+            <input [(ngModel)]="currentStudent.email" name="email" type="email" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm" />
+            <div *ngIf="errors.email" class="text-red-500 text-sm mt-1">
+              {{ errors.email }}
+            </div>
+          </div>
+
+          <!-- Gender -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Gender</label>
+            <select [(ngModel)]="currentStudent.gender" name="gender" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm">
+              <option value="">Select Gender</option>
+              <option *ngFor="let gender of genderOptions" [value]="gender">
+                {{ gender }}
+              </option>
+            </select>
+            <div *ngIf="errors.gender" class="text-red-500 text-sm mt-1">
+              {{ errors.gender }}
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Username</label>
+            <input [(ngModel)]="currentStudent.username" name="username" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm" />
+            <div *ngIf="errors.username" class="text-red-500 text-sm mt-1">
+              {{ errors.username }}
+            </div>
+          </div>
+
+          <!-- password -->
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Password</label>
+            <input [(ngModel)]="currentStudent.password" name="password" type="text" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm" />
+            <div *ngIf="errors.password" class="text-red-500 text-sm mt-1">
+              {{ errors.password }}
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-medium mb-1">Phone (Optional)</label>
+            <input [(ngModel)]="currentStudent.phone" name="phone" maxlength="15" (ngModelChange)="onInputChange()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 text-sm" />
+            <div *ngIf="errors.phone" class="text-red-500 text-sm mt-1">
+              {{ errors.phone }}
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex justify-end gap-3">
+            <button type="button" (click)="closeModal()"
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm">
+              Cancel
+            </button>
+            <button type="submit" [disabled]="!formValid"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
+              {{ isEditMode ? "Update" : "Save" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

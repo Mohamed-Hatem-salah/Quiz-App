@@ -1,0 +1,386 @@
+<div
+  class="lg:max-w-[90%] p-8 max-sm:px-0 max-sm:py-0 mx-auto min-h-[100dvh] bg-background"
+>
+  <div class="mt-10 max-sm:mt-0 flex max-md:flex-col">
+    <div
+      class="bg-white rounded-y-xl shadow-lg p-6 max-sm:px-4 max-sm:py-5 sm:p-8 flex-1"
+    >
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span
+            class="text-sm max-sm:text-[12px] font-medium text-muted-foreground"
+          >
+            Question {{ currentIndex + 1 }}/{{ quiz.questions.length }}
+          </span>
+          <div
+            class="flex items-center gap-1"
+            [ngClass]="{
+              'time-critical': isTimeCritical
+            }"
+          >
+            <svg
+              [ngClass]="{
+                'text-primary': !isTimeCritical,
+                'text-red-600': isTimeCritical
+              }"
+              class="h-6 w-6 max-sm:h-5 max-sm:w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+
+            <!-- Timer number -->
+            <span
+              class="text-2xl max-sm:text-lg font-semibold font-mono inline-block text-center min-w-[4.5ch]"
+            >
+              {{ formattedTime }}
+            </span>
+          </div>
+        </div>
+        <div class="w-full bg-secondary rounded-full h-2.5 max-sm:h-2">
+          <div
+            class="bg-primary h-2.5 rounded-full max-sm:h-2"
+            [style.width.%]="progress"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div class="transition-opacity duration-300">
+        <div
+          class="w-full flex justify-between items-start my-6 max-sm:my-4 relative"
+        >
+          <h2
+            class="text-2xl max-sm:text-base font-semibold text-foreground break-words max-w-[80%]"
+          >
+            <span class="font-bold">Q{{ currentIndex + 1 }}.</span>
+            {{ currentQuestion.text }}?
+          </h2>
+
+          <span
+            class="bg-accent text-primary sm:text-sm text-[10px] font-bold sm:px-3 sm:py-1 px-2 py-0.75 rounded-full absolute right-0"
+            >{{ currentQuestion.points }} Points</span
+          >
+        </div>
+
+        <!-- Options -->
+        <div
+          class="space-y-4 max-sm:space-y-3 mb-8 max-sm:my-5"
+          *ngIf="currentQuestion.type === 'mcq'"
+        >
+          <label
+            *ngFor="let option of currentQuestion.options; let i = index"
+            class="flex items-center gap-4 max-sm:gap-1 rounded-lg border-2 max-sm:p-3 border-border p-4 cursor-pointer transition-all duration-200"
+            [ngClass]="{
+              'border-primary bg-primary-soft':
+                selectedAnswers[currentQuestion.id] === option.id
+            }"
+            (click)="selectAnswer(option.id)"
+          >
+            <span
+              class="flex items-center justify-center h-8 w-8 max-sm:h-6 text-sm max-sm:w-6 rounded-md transition-colors"
+              [ngClass]="{
+                'bg-primary text-primary-foreground':
+                  selectedAnswers[currentQuestion.id] === option.id,
+                'bg-secondary text-gray-700':
+                  selectedAnswers[currentQuestion.id] !== option.id
+              }"
+            >
+              {{ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i] }}
+            </span>
+            <span class="ml-1 font-medium flex-1 text-sm sm:text-lg">
+              {{ option.text }}
+            </span>
+            <input
+              type="radio"
+              [name]="'quiz_option_' + currentQuestion.id"
+              [value]="option.id"
+              [(ngModel)]="selectedAnswers[currentQuestion.id]"
+              class="w-6 h-6 accent-primary cursor-pointer max-sm:w-5 max-sm:h-5"
+            />
+          </label>
+        </div>
+
+        <!-- Written -->
+        <div *ngIf="currentQuestion.type === 'written'" class="mb-8">
+          <textarea
+            hlmInput
+            class="w-full border-2 p-3 h-56 sm:h-72"
+            placeholder="Write your answer here..."
+            [(ngModel)]="selectedAnswers[currentQuestion.id]"
+            (ngModelChange)="onWrittenAnswerChange(currentQuestion.id, $event)"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-200 my-6 max-sm:my-3"></div>
+
+      <!-- Footer Navigation -->
+      <div class="flex sm:flex-row flex-wrap justify-between gap-4">
+        <button
+          hlmBtn
+          variant="outline"
+          class="px-6 py-3 max-sm:px-4 max-sm:h-8"
+          (click)="previousQuestion()"
+          [disabled]="currentIndex === 0"
+        >
+          Previous
+        </button>
+        <div class="flex-grow hidden sm:block"></div>
+
+        <!-- ✅ Dialog Trigger Button (Submit) -->
+        <hlm-dialog
+          [ngClass]="{
+            'order-3 w-full': currentIndex == quiz.questions.length - 1
+          }"
+        >
+          <button
+            hlmBtn
+            variant="destructive"
+            brnDialogTrigger
+            *ngIf="currentIndex == quiz.questions.length - 1"
+            class="w-full py-5 sm:py-6"
+          >
+            Submit Quiz
+          </button>
+
+          <!-- Dialog content -->
+          <hlm-dialog-content
+            *brnDialogContent="let ctx"
+            class="max-sm:w-[95vw] max-sm:mx-auto"
+          >
+            <hlm-dialog-header>
+              <div class="flex items-center gap-2 mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-check-check-icon lucide-check-check w-10 h-10 bg-primary-soft p-2 text-primary rounded-main"
+                >
+                  <path d="M18 6 7 17l-5-5" />
+                  <path d="m22 10-7.5 7.5L13 16" />
+                </svg>
+                <h3
+                  brnDialogTitle
+                  hlm
+                  class="flex items-center gap-2 text-xl font-semibold"
+                >
+                  Submit Quiz
+                </h3>
+              </div>
+
+              <p brnDialogDescription hlm class="mt-2 text-gray-600">
+                You've answered {{ objectKeys(selectedAnswers).length }} out of
+                {{ quiz.questions.length }} questions.
+              </p>
+
+              <!-- ⚠️ Warning if not all answered -->
+              <div
+                *ngIf="
+                  objectKeys(selectedAnswers).length < quiz.questions.length
+                "
+                class="flex items-center gap-2 mt-3 text-yellow-600"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+                <span class="text-sm font-medium">
+                  Some questions are still unanswered.
+                </span>
+              </div>
+            </hlm-dialog-header>
+
+            <hlm-dialog-footer class="mt-4 flex justify-end gap-3">
+              <button hlmBtn variant="outline" (click)="ctx.close()">
+                Cancel
+              </button>
+              <button
+                hlmBtn
+                variant="destructive"
+                type="button"
+                (click)="finalizeSubmit(); ctx.close()"
+              >
+                Confirm Submit
+              </button>
+            </hlm-dialog-footer>
+          </hlm-dialog-content>
+        </hlm-dialog>
+
+        <button
+          hlmBtn
+          class="px-6 py-3 max-sm:px-4 max-sm:h-8"
+          (click)="nextQuestion()"
+          [disabled]="currentIndex === quiz.questions.length - 1"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+    <aside
+      class="p-6 max-sm:px-3 max-sm:pb-2 max-sm:w-full max-md:flex max-md:mx-auto rounded-y-xl lg:rounded-r-xl lg:rounded-bl-none shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),_0_1px_3px_0_rgba(0,0,0,0.1),_0_1px_2px_0_rgba(0,0,0,0.06)]"
+    >
+      <div
+        class="p-4 bg-white rounded-lg shadow-md min-h-80 max-sm:min-h-fit max-sm:w-full"
+      >
+        <!-- Title -->
+        <h3 class="text-lg font-bold mb-4 text-gray-900">Quiz Navigation</h3>
+
+        <!-- Question numbers -->
+        <div class="flex flex-col justify-between min-h-60 max-sm:min-h-fit">
+          <div
+            class="grid grid-cols-5 gap-3 max-sm:grid-cols-[repeat(auto-fit,40px)] max-sm:mb-10"
+          >
+            <button
+              *ngFor="let q of quiz.questions; let i = index"
+              (click)="goToQuestion(i)"
+              [ngClass]="{
+                'gradient-primary text-popover font-bold shadow-lg -translate-y-1 ring-2 ring-white transition-all duration-200 transform hover:-translate-y-0.5':
+                  currentIndex === i,
+
+                'relative bg-success text-white  font-semibold shadow-sm':
+                  isAnswered(q.id) && currentIndex !== i,
+
+                'bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-all duration-200 transform hover:-translate-y-0.5':
+                  !isAnswered(q.id) && currentIndex !== i
+              }"
+              class="w-10 h-10 flex items-center justify-center rounded-lg cursor-pointer"
+            >
+              {{ i + 1 }}
+
+              <!-- ✅ checkmark for answered -->
+              <svg
+                *ngIf="isAnswered(q.id) && currentIndex !== i"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="absolute -top-1.5 -right-1.5 text-white bg-success rounded-full p-0.5 text-[14px]"
+              >
+                <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Finish Attempt with confirmation dialog -->
+          <hlm-dialog>
+            <!-- Trigger button -->
+            <button
+              hlmBtn
+              brnDialogTrigger
+              variant="destructive"
+              class="w-full py-6 rounded-lg"
+            >
+              Finish Attempt
+            </button>
+
+            <!-- Dialog content -->
+            <hlm-dialog-content
+              *brnDialogContent="let ctx"
+              class="max-sm:w-[95vw] max-sm:mx-auto"
+            >
+              <hlm-dialog-header>
+                <div class="flex items-center gap-2 mb-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-check-check-icon lucide-check-check w-10 h-10 bg-primary-soft p-2 text-primary rounded-main"
+                  >
+                    <path d="M18 6 7 17l-5-5" />
+                    <path d="m22 10-7.5 7.5L13 16" />
+                  </svg>
+                  <h3
+                    brnDialogTitle
+                    hlm
+                    class="flex items-center gap-2 text-xl font-semibold"
+                  >
+                    Submit Quiz
+                  </h3>
+                </div>
+
+                <p brnDialogDescription hlm class="mt-2 text-gray-600">
+                  You've answered {{ objectKeys(selectedAnswers).length }} out
+                  of {{ quiz.questions.length }} questions.
+                </p>
+
+                <!-- ⚠️ Warning if not all answered -->
+                <div
+                  *ngIf="
+                    objectKeys(selectedAnswers).length < quiz.questions.length
+                  "
+                  class="flex items-center gap-2 mt-3 text-yellow-600"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                    />
+                  </svg>
+                  <span class="text-sm font-medium">
+                    Some questions are still unanswered.
+                  </span>
+                </div>
+              </hlm-dialog-header>
+
+              <!-- Footer -->
+              <hlm-dialog-footer class="mt-4 flex justify-end gap-3">
+                <button hlmBtn variant="outline" (click)="ctx.close()">
+                  Cancel
+                </button>
+                <button
+                  hlmBtn
+                  variant="destructive"
+                  type="button"
+                  (click)="finalizeSubmit(); ctx.close()"
+                >
+                  Confirm Submit
+                </button>
+              </hlm-dialog-footer>
+            </hlm-dialog-content>
+          </hlm-dialog>
+        </div>
+
+        <!-- Timer -->
+      </div>
+    </aside>
+  </div>
+</div>

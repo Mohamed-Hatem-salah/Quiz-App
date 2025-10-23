@@ -1,0 +1,283 @@
+<header class="gradient-card border-b border-gray-200 sticky top-0 z-50">
+  <div
+    class="flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-0"
+  >
+    <!-- LEFT SECTION (Search + Notifications + User on mobile) -->
+    <div
+      class="flex items-center justify-between w-full sm:w-auto space-x-2 sm:space-x-4"
+    >
+      <!-- Search input -->
+      <div class="relative flex-1 sm:w-64 lg:w-80 max-w-xs">
+        <!-- Search Icon -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+          />
+        </svg>
+        <input
+          #searchInput
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+          class="pl-10 pr-8 py-2 w-full bg-gray-100 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Search students, teachers, pages..."
+          type="text"
+        />
+
+        <!-- Clear button -->
+        <button
+          *ngIf="searchTerm"
+          (click)="clearSearch()"
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        ></button>
+
+        <!-- Search results dropdown -->
+        <div
+          #searchResultsContainer
+          *ngIf="showSearchResults"
+          (mouseenter)="isSearchFocused = true"
+          (mouseleave)="isSearchFocused = false"
+          class="absolute left-0 right-0 top-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50"
+        >
+          <div class="py-1">
+            <!-- Typing indicator -->
+            <div
+              *ngIf="showTypingIndicator"
+              class="px-4 py-3 flex items-center justify-center text-gray-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-search-icon lucide-search"
+              >
+                <path d="m21 21-4.34-4.34" />
+                <circle cx="11" cy="11" r="8" />
+              </svg>
+              Searching for "{{ searchTerm }}"
+            </div>
+
+            <!-- Search results -->
+            <div
+              *ngFor="let result of searchResults"
+              (mousedown)="selectResult(result)"
+              class="px-4 py-3 hover:bg-blue-100 cursor-pointer flex items-center transition-colors duration-150"
+            >
+              <div
+                class="flex-shrink-0 mr-3 text-blue-500 w-5 h-5 flex items-center justify-center"
+              >
+                <span [innerHTML]="sanitizeHtml(result.icon)"></span>
+              </div>
+              <div class="flex-grow">
+                <div
+                  class="font-medium text-gray-800"
+                  [innerHTML]="
+                    sanitizeHtml(result.highlightedTitle || result.title)
+                  "
+                ></div>
+                <div
+                  class="text-xs text-gray-500"
+                  [innerHTML]="
+                    sanitizeHtml(
+                      result.highlightedDescription || result.description
+                    )
+                  "
+                ></div>
+              </div>
+              <div class="flex-shrink-0 ml-2">
+                <span
+                  class="text-xs font-medium px-2 py-1 rounded-full"
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-800': result.type === 'student',
+                    'bg-green-100 text-green-800': result.type === 'teacher',
+                    'bg-purple-100 text-purple-800':
+                      result.type === 'connection',
+                    'bg-gray-100 text-gray-800': result.type === 'page'
+                  }"
+                >
+                  {{
+                    result.type === "student"
+                      ? "Student"
+                      : result.type === "teacher"
+                      ? "Teacher"
+                      : result.type === "connection"
+                      ? "Connection"
+                      : "Page"
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <div
+              *ngIf="searchResults.length === 0 && !showTypingIndicator"
+              class="px-4 py-3 text-center text-gray-500"
+            >
+              No results found for "{{ searchTerm }}"
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Notifications (mobile only beside search) -->
+        <div class="sm:hidden pl-10 relative">
+          <button
+            class="text-gray-600 hover:text-gray-800"
+            (click)="clearNotifications()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 
+              14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 
+              0 10-4 0v.341C7.67 6.165 6 8.388 6 
+              11v3.159c0 .538-.214 1.055-.595 
+              1.436L4 17h5m6 0v1a3 3 0 
+              11-6 0v-1h6z"
+              />
+            </svg>
+          </button>
+
+          <!-- Badge -->
+          <div
+            *ngIf="notificationCount > 0"
+            class="absolute -top-1 -right-1 flex items-center justify-center"
+          >
+            <span
+              class="absolute inline-flex h-3 w-3 rounded-full bg-red-500 opacity-75 animate-ping"
+            ></span>
+            <span
+              class="relative inline-flex items-center justify-center h-4 w-4 rounded-full bg-red-600 text-white text-xs font-bold"
+            >
+              {{ notificationCount }}
+            </span>
+          </div>
+        </div>
+
+        <!-- User (mobile only beside search) -->
+        <div class="sm:hidden flex items-center mb-2">
+          <div
+            class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-user-icon lucide-user text-accent"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SECTION (only visible on bigger screens) -->
+    <div
+      class="hidden sm:flex items-center justify-end w-full sm:w-auto space-x-6"
+    >
+      <!-- Notifications -->
+      <div class="relative mt-1">
+        <button
+          class="text-gray-600 hover:text-gray-800"
+          (click)="clearNotifications()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-7 h-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 
+              0118 14.158V11a6.002 6.002 0 
+              00-4-5.659V5a2 2 0 10-4 
+              0v.341C7.67 6.165 6 
+              8.388 6 11v3.159c0 
+              .538-.214 1.055-.595 
+              1.436L4 17h5m6 
+              0v1a3 3 0 11-6 
+              0v-1h6z"
+            />
+          </svg>
+        </button>
+
+        <!-- Badge -->
+        <div
+          *ngIf="notificationCount > 0"
+          class="absolute -top-1 -right-1 flex items-center justify-center"
+        >
+          <span
+            class="absolute inline-flex h-4 w-4 rounded-full bg-red-500 opacity-75 animate-ping"
+          ></span>
+          <span
+            class="relative inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-xs font-bold"
+          >
+            {{ notificationCount }}
+          </span>
+        </div>
+      </div>
+
+      <!-- User info -->
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-user-icon lucide-user text-white"
+          >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-800 text-base">Super Admin</p>
+          <p class="text-sm text-gray-500">adminquiz.app</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

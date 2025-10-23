@@ -1,0 +1,401 @@
+<div class="min-h-screen flex flex-col">
+  <header class="bg-card shadow-sm sticky top-0 z-10">
+    <div class="mx-auto px-2 sm:px-6 lg:px-12">
+      <div class="flex items-center justify-between sm:h-16 h-14">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 text-[var(--primary-color)]">
+            <svg
+              class="w-full h-full"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </div>
+          <h1 class="text-2xl max-sm:text-xl font-bold text-[var(--text-primary)]">
+            Quiz Mastro
+          </h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 max-sm:hidden">
+            <span class="text-[var(--text-secondary)]">Role:</span>
+            <span
+              class="flex items-center gap-1 font-semibold"
+              [ngClass]="{
+                'text-success': role === 'student',
+                'text-primary': role === 'teacher',
+                'text-destructive': role === 'super'
+              }"
+            >
+              <!-- Role Icon -->
+              <ng-container [ngSwitch]="role">
+                <!-- Student Icon -->
+                <svg
+                  *ngSwitchCase="'student'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5.25 h-5.25 mb-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 14l9-5-9-5-9 5 9 5z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 14l6.16-3.422a12.083 12.083 0 01.84 4.422c0 3.866-3.582 7-8 7s-8-3.134-8-7a12.083 12.083 0 01.84-4.422L12 14z"
+                  />
+                </svg>
+                <!-- Teacher Icon -->
+                <svg
+                  *ngSwitchCase="'teacher'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-shield-check-icon lucide-shield-check w-5 h-5"
+                >
+                  <path
+                    d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                  />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+                <!-- Super super Icon -->
+                <svg
+                  *ngSwitchCase="'super'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"
+                  />
+                </svg>
+                <!-- Default / No role -->
+                <svg
+                  *ngSwitchDefault
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 8v4l2 2"
+                  />
+                </svg>
+              </ng-container>
+              <span class="mt-0.5">
+                {{ role?.toUpperCase() || "No role assigned" }}</span
+              >
+            </span>
+          </div>
+
+          <a
+            routerLink="/sign-in"
+            class="button-click bg-destructive text-white rounded-md px-4 py-2 hover:bg-destructive-hover focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-opacity-50 flex items-center gap-2 group max-sm:py-2 max-sm:px-3 max-sm:text-sm"
+          >
+            <span class="hidden sm:block">Login to Start</span>
+            <span class="block sm:hidden">Login</span>
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-log-in-icon lucide-log-in transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+            >
+              <path d="m10 17 5-5-5-5" />
+              <path d="M15 12H3" />
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="flex-grow bg-[var(--background-color)]">
+    <section class="relative">
+      <div
+        class="flex items-center gap-2 sm:hidden justify-center w-fit mt-8 border-t-2 border-b-2 border-border mx-auto p-2"
+      >
+        <span class="text-sm max-sm:text-base text-foreground">Role:</span>
+        <span
+          class="flex items-center gap-1 font-semibold text-sm max-sm:text-base"
+          [ngClass]="{
+            'text-success': role === 'student',
+            'text-primary': role === 'teacher',
+            'text-destructive': role === 'super'
+          }"
+        >
+          <!-- Role Icon -->
+          <ng-container [ngSwitch]="role">
+            <!-- Student Icon -->
+            <svg
+              *ngSwitchCase="'student'"
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5.25 h-5.25"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 14l9-5-9-5-9 5 9 5z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 14l6.16-3.422a12.083 12.083 0 01.84 4.422c0 3.866-3.582 7-8 7s-8-3.134-8-7a12.083 12.083 0 01.84-4.422L12 14z"
+              />
+            </svg>
+            <!-- Teacher Icon -->
+            <svg
+              *ngSwitchCase="'teacher'"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-shield-check-icon lucide-shield-check"
+            >
+              <path
+                d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+              />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <!-- Super super Icon -->
+            <svg
+              *ngSwitchCase="'super'"
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"
+              />
+            </svg>
+            <!-- Default / No role -->
+            <svg
+              *ngSwitchDefault
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 8v4l2 2"
+              />
+            </svg>
+          </ng-container>
+          {{ role?.toUpperCase() || "No role assigned" }}
+        </span>
+      </div>
+      <div
+        class="lg:max-w-[90%] px-5 py-10 max-sm:py-5 mx-auto sm:px-6 lg:px-8 md:py-24 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-0"
+      >
+        <div class="lg:w-1/2 text-center lg:text-left">
+          <h1
+            class="text-4xl max-sm:text-3xl md:text-5xl font-bold text-[var(--text-primary)] leading-tight mb-4"
+          >
+            Unlock Your Potential with Engaging Quizzes
+          </h1>
+          <p class="text-lg max-sm:text-base text-[var(--text-secondary)] mb-8">
+            Dive into a world of knowledge. Our platform offers a diverse range
+            of quizzes to challenge your intellect and make learning an exciting
+            adventure.
+          </p>
+          <a
+            (click)="startApplication()"
+            class="inline-block button-click bg-primary text-white rounded-md px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-lg lg:px-8 lg:py-3"
+          >
+            Start Application
+          </a>
+        </div>
+        <div class="lg:w-1/2 flex justify-end">
+          <img
+            alt="Illustration of people learning"
+            class="w-full h-auto max-w-lg"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJoqsw5GoojCHYvrFCvlodd5bNdQnY0xq-6PiuaJ6ynMVN1imwwu25KQ_gs3hmG0IjyT7rcxMHf6bKO7z85eQnyi_A6F9mMntu6iLI2nz63nXfp5sXFAF19B45xN4W_7uHADEjsOEuwaIpthgpt__VXwSvEID5659kdU1H5T2WdNBW5GRRBlXeRONdHQLv1pc93vEE4SDMNzB0oPLpYYn9o49m69ws2omHAXsb2z9aw_GArc3oTUCvH-XxgCTlwXZ1ZQ8xw3zZb8Y"
+          />
+        </div>
+      </div>
+    </section>
+    <section class="py-20 lg:max-w-[90%] mx-auto">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-[var(--text-primary)]">
+            Why Choose Quiz App?
+          </h2>
+          <p class="text-lg text-[var(--text-secondary)] mt-2">
+            Discover the features that make our platform unique.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-white p-8 rounded-lg shadow-md text-center">
+            <div
+              class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[var(--accent-color)] rounded-full text-[var(--primary-color)]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-clipboard-check-icon lucide-clipboard-check"
+              >
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+                <path
+                  d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                ></path>
+                <path d="m9 14 2 2 4-4"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-2">
+              Interactive Quizzes
+            </h3>
+            <p class="text-[var(--text-secondary)]">
+              Engage with various question formats, from multiple-choice to
+              fill-in-the-blanks, for a dynamic learning experience.
+            </p>
+          </div>
+          <div class="bg-white p-8 rounded-lg shadow-md text-center">
+            <div
+              class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[var(--accent-color)] rounded-full text-[var(--primary-color)]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-arrow-left-right-icon lucide-arrow-left-right"
+              >
+                <path d="M8 3 4 7l4 4"></path>
+                <path d="M4 7h16"></path>
+                <path d="m16 21 4-4-4-4"></path>
+                <path d="M20 17H4"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-2">
+              Dual User Roles
+            </h3>
+            <p class="text-[var(--text-secondary)]">
+              Seamlessly switch between super and Student roles, each with a
+              tailored dashboard and functionalities.
+            </p>
+          </div>
+          <div class="bg-white p-8 rounded-lg shadow-md text-center">
+            <div
+              class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[var(--accent-color)] rounded-full text-[var(--primary-color)]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-shield-check-icon lucide-shield-check"
+              >
+                <path
+                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                ></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-2">
+              Secure &amp; Reliable
+            </h3>
+            <p class="text-[var(--text-secondary)]">
+              Your data is safe with us. We prioritize security to provide a
+              trustworthy and stable platform for all users.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bg-card border-t border-gray-200">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex gap-6">
+          <a class="nav_link text-sm" href="#">Privacy Policy</a>
+          <a class="nav_link text-sm" href="#">Terms of Service</a>
+          <a class="nav_link text-sm" href="#">Support</a>
+        </div>
+        <div class="text-sm text-[var(--text-secondary)]">
+          © 2025 Quiz App. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

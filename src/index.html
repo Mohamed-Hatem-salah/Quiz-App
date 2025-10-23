@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quiz App</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="quiz-a-fotor-bg-remover-2025082411058.png"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Material Symbols (new set, e.g. bar_chart, person) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        overflow: hidden;
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background-color: #f0f4f8;
+      }
+
+      /* Loader container */
+      #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f4f8;
+        z-index: 9999;
+        flex-direction: column;
+        transition: opacity 0.5s ease;
+      }
+      #preloader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Logo */
+      #preloader h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0d141c;
+        margin-bottom: 2rem;
+        position: relative;
+      }
+
+      /* Glow circles */
+      .glow {
+        position: absolute;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background-color: #3388ff;
+        filter: blur(1.2rem);
+        opacity: 0.7;
+      }
+      .glow.top-right {
+        top: -1rem;
+        right: -1rem;
+      }
+      .glow.bottom-left {
+        bottom: -1rem;
+        left: -1rem;
+        animation-delay: 1s;
+      }
+      .glow.bottom {
+        bottom: -5rem;
+        left: 8rem;
+        animation-delay: 1s;
+      }
+      .glow.top {
+        top: -5rem;
+        right: 8rem;
+        animation-delay: 1s;
+      }
+
+      /* Progress bar */
+      .progress-bg {
+        width: 16rem;
+        height: 0.625rem;
+        background-color: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+      .progress-fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(
+          135deg,
+          hsl(213, 93%, 50%),
+          hsl(213, 100%, 70%)
+        );
+        animation: progress-bar 2.5s ease-out forwards;
+      }
+
+      /* Loading text */
+      .loading-text {
+        color: #4a5568;
+        visibility: hidden;
+        animation: showText-loading-text 0s forwards, pulse 1.5s infinite;
+        animation-delay: 2.5s;
+      }
+
+      @keyframes showText-loading-text {
+        to {
+          visibility: visible;
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      @keyframes progress-bar {
+        0% {
+          width: 0%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+      .dot {
+        opacity: 0;
+        font-size: 1.5rem;
+        display: inline-block;
+        animation: dotTyping 1.5s infinite;
+      }
+
+      .dot-1 {
+        animation-delay: 0s;
+      }
+      .dot-2 {
+        animation-delay: 0.5s;
+      }
+      .dot-3 {
+        animation-delay: 1s;
+      }
+
+      @keyframes dotTyping {
+        0%,
+        20% {
+          opacity: 0;
+        }
+        50%,
+        70% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="preloader">
+      <div class="mx-auto mb-4 h-15 w-15 text-primary">
+        <!-- Logo -->
+        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M24 0.7L47.2 24 24 47.2 0.7 24 24 0.7ZM21 35.7V12.2L9.2 24 21 35.7Z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+      <h1>
+        Quiz Mastro
+        <div class="glow top-right"></div>
+        <div class="glow bottom-left"></div>
+        <div class="glow bottom"></div>
+        <div class="glow top"></div>
+      </h1>
+      <div class="progress-bg">
+        <div class="progress-fill"></div>
+      </div>
+      <p class="loading-text">
+        Preparing your page
+        <span class="dot dot-1">.</span>
+        <span class="dot dot-2">.</span>
+        <span class="dot dot-3">.</span>
+      </p>
+    </div>
+
+    <app-root></app-root>
+
+    <script>
+      window.addEventListener("load", () => {
+        const loader = document.getElementById("preloader");
+        if (loader) {
+          setTimeout(() => {
+            loader.classList.add("fade-out");
+            setTimeout(() => {
+              loader.remove();
+            }, 500);
+            document.body.style.overflow = "auto";
+          }, 3000);
+        }
+      });
+    </script>
+  </body>
+</html>

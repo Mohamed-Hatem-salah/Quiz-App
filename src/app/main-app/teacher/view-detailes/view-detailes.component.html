@@ -1,0 +1,486 @@
+<section class="p-8 max-sm:px-2 max-sm:pt-0 max-sm:pb-6 bg-background">
+  <h1
+    class="text-center text-foreground text-3xl font-semibold mt-5 max-sm:hidden"
+  >
+    View Detailes
+  </h1>
+
+  <div class="lg:max-w-[70%] mx-auto space-y-8 mt-5" [formGroup]="quizForm">
+    <div class="flex justify-between max-sm:justify-center items-center">
+      <button
+        variant="outline"
+        hlmBtn
+        type="button"
+        class="flex items-center group max-sm:hidden"
+        (click)="goBack()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+        >
+          <path
+            d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+          />
+        </svg>
+
+        <span class="text-base">Back</span>
+      </button>
+      <div class="flex justify-end gap-4">
+        <button hlmBtn variant="outline" (click)="enableEdit()">
+          Edit Quiz
+        </button>
+
+        <hlm-dialog>
+          <button brnDialogTrigger hlmBtn type="button" variant="destructive">
+            Delete Quiz
+          </button>
+
+          <hlm-dialog-content
+            *brnDialogContent="let ctx"
+            class="max-sm:w-[95%] max-sm:mx-auto"
+          >
+            <hlm-dialog-header>
+              <div class="flex items-center gap-2 mb-5">
+                <svg
+                  class="w-10 h-10 bg-destructive-soft p-2 text-destructive rounded-main"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+                <h3
+                  brnDialogTitle
+                  hlm
+                  class="flex items-center gap-2 text-xl font-semibold"
+                >
+                  Delete Quiz
+                </h3>
+              </div>
+
+              <p brnDialogDescription hlm>
+                Are you sure you want to Delete this quiz?
+              </p>
+            </hlm-dialog-header>
+            <hlm-dialog-footer class="gap-y-2">
+              <button hlmBtn variant="outline" (click)="ctx.close()">
+                Cancel
+              </button>
+              <button
+                hlmBtn
+                type="button"
+                variant="destructive"
+                (click)="deleteQuiz()"
+              >
+                Yes, Delete
+              </button>
+            </hlm-dialog-footer>
+          </hlm-dialog-content>
+        </hlm-dialog>
+      </div>
+    </div>
+
+    <div class="card grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label
+          id="quiz-title-label"
+          for="quiz-title"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Quiz Title <span class="text-destructive">*</span>
+        </label>
+        <input
+          id="quiz-title"
+          maxlength="20"
+          hlmInput
+          formControlName="title"
+          placeholder="Enter quiz title"
+          autofocus
+          [readonly]="!isEditing"
+          (keydown.enter)="focusNext(descriptionInput)"
+        />
+      </div>
+      <div>
+        <label
+          id="quiz-desc-label"
+          for="quiz-description"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Description (Optional)
+        </label>
+        <textarea
+          id="quiz-description"
+          #descriptionInput
+          hlmInput
+          [readonly]="!isEditing"
+          formControlName="description"
+          placeholder="Enter description"
+          rows="3"
+          maxlength="40"
+          class="overflow-hidden text-start"
+          (keydown.enter)="focusNext(durationInput)"
+        ></textarea>
+      </div>
+      <div>
+        <label
+          id="quiz-duration-label"
+          for="duration"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Duration (minutes) <span class="text-destructive">*</span>
+        </label>
+        <input
+          id="duration"
+          #durationInput
+          hlmInput
+          [readonly]="!isEditing"
+          type="number"
+          min="1"
+          max="300"
+          formControlName="duration"
+          class="form-input"
+          (keydown.enter)="focusNext(startTimeInput)"
+        />
+      </div>
+      <div>
+        <label
+          id="quiz-start-label"
+          for="start-time"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Start Time <span class="text-destructive">*</span>
+        </label>
+        <input
+          placeholder="mm/dd/yyyy --:-- --"
+          id="start-time"
+          #startTimeInput
+          [readonly]="!isEditing"
+          hlmInput
+          type="datetime-local"
+          formControlName="startTime"
+          class="form-input"
+          [min]="minDateTime"
+        />
+        <div
+          class="mt-2 text-sm text-destructive"
+          *ngIf="quizForm.get('startTime')?.hasError('minDateTime')"
+        >
+          Start time must be at least 1 minute from now.
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions List -->
+    <div *ngIf="questions.length > 0">
+      <h2 class="text-xl font-semibold text-foreground mb-4">
+        Questions ({{ questions.length }})
+      </h2>
+      <div class="space-y-4">
+        <div
+          *ngFor="let question of questions.controls; let i = index"
+          class="card p-4 space-y-4"
+        >
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-semibold text-foreground">
+                Question {{ i + 1 }} (<span class="text-primary"
+                  >{{ question.value.points }} points</span
+                >)
+              </p>
+              <p class="text-sm text-gray-500 mt-1">
+                {{
+                  question.value.type === "mcq" ? "Multiple Choice" : "Written"
+                }}
+              </p>
+            </div>
+            <button
+              class="text-red-500 hover:text-red-700"
+              (click)="removeQuestion(i)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-trash2-icon lucide-trash-2 cursor-pointer"
+              >
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-gray-700">
+            <span class="text-destructive font-semibold">Question:</span>
+            {{ question.value.text }} ?
+          </p>
+
+          <!-- Options for MCQ -->
+          <div
+            *ngIf="question.value.type === 'mcq'"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2"
+          >
+            <div
+              *ngFor="let option of getOptions(i).controls; let j = index"
+              [ngClass]="{
+                'p-3 rounded-md flex justify-between items-center': true,
+                'bg-green-100 border border-success text-success':
+                  option.value.isCorrect,
+                'bg-gray-50': !option.value.isCorrect
+              }"
+            >
+              <span>{{ option.value.text }}</span>
+              <button type="button" (click)="setCorrectOption(i, j)">
+                <svg
+                  *ngIf="option.value.isCorrect"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                  <path d="m9 11 3 3L22 4" />
+                </svg>
+                <span>
+                  <svg
+                    *ngIf="!option.value.isCorrect"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-circle-icon lucide-circle"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Question Form -->
+    <div *ngIf="isEditing" class="card">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+          Add New Question
+        </h2>
+        <div class="space-y-6">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Question <span class="text-destructive">*</span></label
+            >
+            <textarea
+              #question
+              [readonly]="!isEditing"
+              (keydown.enter)="focusNext(points)"
+              hlmInput
+              [formControl]="newQuestionText"
+              class="form-input"
+              maxlength="100"
+              placeholder="Enter your question"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Question Type</label
+              >
+              <brn-select
+                [formControl]="newQuestionType"
+                placeholder="Select type"
+              >
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content>
+                  <hlm-option value="mcq">MCQ</hlm-option>
+                  <hlm-option value="written">Written</hlm-option>
+                </hlm-select-content>
+              </brn-select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Points <span class="text-destructive">*</span></label
+              >
+              <input
+                [readonly]="!isEditing"
+                #points
+                hlmInput
+                type="number"
+                min="1"
+                max="100"
+                [formControl]="newQuestionPoints"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="newQuestionType.value === 'mcq'" class="space-y-3 mt-4">
+            <h3 class="font-medium text-gray-700">
+              Options <span class="text-destructive">*</span>
+            </h3>
+
+            <div
+              *ngFor="let optCtrl of tempOptionControls.controls; let i = index"
+              class="flex items-center gap-2"
+            >
+              <!-- Option input -->
+              <input
+                [readonly]="!isEditing"
+                hlmInput
+                type="text"
+                maxlength="50"
+                [formControl]="optCtrl"
+                placeholder="Enter option {{ i + 1 }}"
+                class="form-input flex-1"
+                #optionInput
+                (keydown.enter)="
+                  focusNext(optionInputs.toArray()[i + 1].nativeElement)
+                "
+              />
+
+              <!-- Correct button -->
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                [ngClass]="{
+                  'btn-active text-white': tempCorrectIndex === i,
+                  '': tempCorrectIndex !== i
+                }"
+                (click)="setTempCorrect(i)"
+              >
+                Correct
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              hlmBtn
+              class="flex items-center gap-2 py-5 max-sm:w-full"
+              variant="destructive"
+              type="button"
+              (click)="addNewQuestion()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-circle-plus-icon lucide-circle-plus"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 12h8" />
+                <path d="M12 8v8" />
+              </svg>
+              Add Question
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-center mt-6">
+      <div class="flex justify-center mt-6" *ngIf="isEditing">
+        <hlm-dialog>
+          <button
+            brnDialogTrigger
+            hlmBtn
+            type="button"
+            class="px-6 py-5 text-white bg-primary rounded-md hover:bg-primary-dark"
+          >
+            Update Quiz
+          </button>
+
+          <hlm-dialog-content
+            *brnDialogContent="let ctx"
+            class="max-sm:w-[95%] max-sm:mx-auto"
+          >
+            <hlm-dialog-header>
+              <div class="flex items-center gap-2 mb-5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-hammer-icon lucide-hammer w-10 h-10 bg-success-soft p-2 text-success rounded-main"
+                >
+                  <path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9" />
+                  <path d="m18 15 4-4" />
+                  <path
+                    d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"
+                  />
+                </svg>
+                <h3
+                  brnDialogTitle
+                  hlm
+                  class="flex items-center gap-2 text-xl font-semibold"
+                >
+                  Update Quiz
+                </h3>
+              </div>
+              <p brnDialogDescription hlm>
+                Are you sure you want to update this quiz?
+              </p>
+            </hlm-dialog-header>
+            <hlm-dialog-footer class="gap-y-2">
+              <button hlmBtn variant="outline" (click)="ctx.close()">
+                Cancel
+              </button>
+              <button
+                hlmBtn
+                type="button"
+                class="bg-success"
+                (click)="updateQuiz()"
+              >
+                Yes, Update
+              </button>
+            </hlm-dialog-footer>
+          </hlm-dialog-content>
+        </hlm-dialog>
+      </div>
+    </div>
+  </div>
+</section>

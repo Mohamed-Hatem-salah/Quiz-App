@@ -1,0 +1,168 @@
+<div class="layout">
+  <div class="p-4 sm:p-6 space-y-4">
+    <!-- Header with mode buttons -->
+    <div
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4"
+    >
+      <h2 class="text-2xl font-semibold">Student Assignments</h2>
+      <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <button
+          class="flex items-center justify-center gap-2 px-4 py-2 duration-200 rounded-lg shadow-md w-full sm:w-auto hover:bg-blue-400"
+          [class.bg-blue-600]="mode() === 'assign'"
+          [class.bg-white]="mode() !== 'assign'"
+          [class.text-white]="mode() === 'assign'"
+          [class.text-black]="mode() !== 'assign'"
+          (click)="mode.set('assign')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-users-icon lucide-users"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+          Assign Teachers
+        </button>
+        <button
+          class="flex items-center justify-center gap-2 px-4 py-2 duration-200 rounded-lg shadow-md w-full sm:w-auto hover:bg-blue-400"
+          [class.bg-blue-600]="mode() === 'manage'"
+          [class.bg-white]="mode() !== 'manage'"
+          [class.text-white]="mode() === 'manage'"
+          [class.text-black]="mode() !== 'manage'"
+          (click)="mode.set('manage')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-book-open-icon lucide-book-open"
+          >
+            <path d="M12 7v14" />
+            <path
+              d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+            />
+          </svg>
+          Manage Assignments
+        </button>
+      </div>
+    </div>
+
+    <!-- Student select -->
+    <div class="bg-white rounded-lg shadow p-4 card">
+      <label class="text-lg font-medium mb-2 block">Select Student</label>
+      <select
+        class="w-full p-2 h-10 border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-500 outline-none"
+        [ngModel]="selectedStudentId()"
+        (ngModelChange)="selectedStudentId.set($event)"
+      >
+        <option [ngValue]="null" disabled selected hidden>
+          Choose a student to assign teachers
+        </option>
+        <option *ngFor="let s of students" [ngValue]="s.id">
+          {{ s.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Assign Teachers Mode -->
+    <div
+      *ngIf="selectedStudentId() !== null && mode() === 'assign'"
+      class="bg-white rounded-lg shadow p-4"
+    >
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3"
+      >
+        <h3 class="text-xl font-semibold">
+          Assign Teachers to {{ getSelectedStudentName() }}
+        </h3>
+        <input
+          class="border rounded px-3 py-2 w-full sm:w-64 mt-2 sm:mt-0"
+          placeholder="Search teachers..."
+          [ngModel]="teacherSearch()"
+          (ngModelChange)="teacherSearch.set($event)"
+        />
+      </div>
+
+      <div class="space-y-3">
+        <label
+          *ngFor="let t of filteredTeachersList"
+          class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border rounded hover:bg-gray-50"
+        >
+          <input
+            type="checkbox"
+            [checked]="isTeacherAssigned(t.id)"
+            (change)="toggleAssignment(t.id, $any($event.target).checked)"
+            class="mt-1 sm:mt-0"
+          />
+          <div class="flex-1">
+            <div class="font-medium">{{ t.name }}</div>
+            <div class="text-sm text-gray-600">{{ t.subject }}</div>
+          </div>
+          <span
+            class="mt-1 sm:mt-0 ml-auto text-sm"
+            [class.text-green-600]="isTeacherAssigned(t.id)"
+          >
+            {{ isTeacherAssigned(t.id) ? "Assigned" : "" }}
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Manage Assignments Mode -->
+    <div
+      class="bg-white rounded-lg shadow p-4"
+      *ngIf="selectedStudentId() !== null && mode() === 'manage'"
+    >
+      <div class="space-y-3">
+        <div
+          *ngFor="
+            let c of connections.getConnectionsByStudent(selectedStudentId()!)
+          "
+          class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 border rounded"
+        >
+          <div class="flex-1">
+            <div class="font-medium">
+              {{ getStudentNameById(c.studentId) }} ↔
+              {{ getTeacherNameById(c.teacherId) }}
+            </div>
+            <div class="text-sm text-gray-600">
+              {{ getTeacherSubjectById(c.teacherId) }} • Created
+              {{ c.createdAt | date : "M/d/yyyy" }}
+            </div>
+          </div>
+          <button
+            class="sm:ml-auto text-red-600 mt-2 sm:mt-0"
+            (click)="connections.removeConnection(c.id)"
+          >
+            Delete
+          </button>
+        </div>
+        <div
+          *ngIf="
+            connections.getConnectionsByStudent(selectedStudentId()!).length ===
+            0
+          "
+          class="text-sm text-gray-600"
+        >
+          No assignments yet.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

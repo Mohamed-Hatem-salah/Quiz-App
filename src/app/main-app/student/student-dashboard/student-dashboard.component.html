@@ -1,0 +1,508 @@
+<app-header></app-header>
+<main
+  class="lg:max-w-[90%] px-5 py-10 max-sm:py-7 mx-auto max-sm:mb-[3rem] min-h-[calc(100dvh-4rem)] max-sm:min-h-[calc(100dvh-3.5rem)]"
+>
+  <div
+    class="w-full flex justify-between items-center pb-8 border-b border-gray-200 mb-8 max-sm:hidden"
+  >
+    <h1 class="text-3xl font-bold text-foreground text-center sm:text-left">
+      My Dashboard
+    </h1>
+    <button
+      variant="outline"
+      hlmBtn
+      class="flex items-center gap-2 sm:py-5 sm:px-6 py-4 px-3 sm:text-base group"
+      routerLink="/index"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+      >
+        <path
+          d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+        />
+      </svg>
+      <span class="text-base">Back</span>
+    </button>
+  </div>
+
+  <ng-container *ngIf="loading; else quizContent">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2 max-sm:mt-0"
+    >
+      <div
+        *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8]"
+        class="bg-white min-h-80 rounded-lg shadow-md p-5 animate-pulse"
+      >
+        <div class="h-full flex flex-col justify-between">
+          <div>
+            <div class="w-full flex justify-between items-center mb-10">
+              <div class="h-6 w-3/4 bg-gray-200 rounded"></div>
+              <div class="h-6 w-1/6 bg-gray-200 rounded-full"></div>
+            </div>
+
+            <div>
+              <div class="h-4 w-full bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 w-5/6 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 w-2/3 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+          <div class="h-10 w-full bg-gray-200 rounded mt-auto"></div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #quizContent>
+    <ng-container *ngIf="quizzes && quizzes.length > 0; else noQuiz">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2 max-sm:mt-0"
+      >
+        <!-- Loop through quizzes -->
+        <div
+          *ngFor="let quiz of quizzes"
+          class="bg-white min-h-80 rounded-lg shadow-md hover:shadow-xl transition-shadow flex flex-col border-l-4"
+          [ngClass]="{
+            'border-primary': quiz.status === 'scheduled',
+            'border-success': quiz.status === 'active',
+            'border-destructive': quiz.status === 'expired',
+            'border-warning': quiz.status === 'grading',
+            'border-[#3fcc8f]': quiz.status === 'finished'
+          }"
+        >
+          <div class="p-5 flex-grow">
+            <div class="flex justify-between items-start mb-2 gap-2">
+              <h2 class="text-lg font-semibold text-secondary-foreground mb-1">
+                {{ quiz.title }}
+              </h2>
+
+              <!-- STATUS BADGES -->
+              <span
+                class="text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                [ngClass]="{
+                  'bg-primary-soft text-primary': quiz.status === 'scheduled',
+                  'bg-success-soft text-success': quiz.status === 'active',
+                  'bg-destructive-soft text-destructive':
+                    quiz.status === 'expired',
+                  'bg-warning-soft text-warning': quiz.status === 'grading',
+                  'bg-[#e6f7f0] text-[#3fcc8f]': quiz.status === 'finished'
+                }"
+              >
+                {{ quiz.status | titlecase }}
+              </span>
+            </div>
+
+            <!-- Description -->
+            <p class="text-sm text-muted-foreground mb-3">
+              {{ quiz.description }}
+            </p>
+
+            <!-- Info section -->
+            <div class="space-y-2 text-sm text-muted-foreground">
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-4 h-4 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <span>{{ quiz.startTime | date : "short" }}</span>
+              </div>
+
+              <!-- Duration -->
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-4 h-4 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <span>{{ quiz.duration }} mins</span>
+              </div>
+
+              <!-- Questions count -->
+              <div class="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-file-text-icon lucide-file-text w-4"
+                >
+                  <path
+                    d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+                  />
+                  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                  <path d="M10 9H8" />
+                  <path d="M16 13H8" />
+                  <path d="M16 17H8" />
+                </svg>
+                <span>{{ quiz.questions.length || 0 }} Questions</span>
+              </div>
+              <div class="border-b-border border-b-2"></div>
+              <!-- Scheduled: Show countdown -->
+              <div
+                *ngIf="quiz.status === 'scheduled'"
+                class="flex items-center gap-2 text-blue-600 font-medium"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock w-4 h-4"
+                >
+                  <path d="M16 14v2.2l1.6 1" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v.832" />
+                  <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2" />
+                  <circle cx="16" cy="16" r="6" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" />
+                </svg>
+                <span>Starts in {{ quiz.startTime | date : "shortTime" }}</span>
+              </div>
+
+              <!-- Expired: show message -->
+              <div
+                *ngIf="quiz.status === 'expired'"
+                class="flex items-center gap-2 text-red-600 font-medium"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 18L18 6M6 6l12 12"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <span>Expired</span>
+              </div>
+
+              <!-- Grading: show waiting message -->
+              <div
+                *ngIf="quiz.status === 'grading'"
+                class="flex items-center gap-2 text-yellow-600 font-medium"
+              >
+                <svg
+                  class="w-4 h-4 animate-spin"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 4v4m0 8v4m8-8h-4m-8 0H4m12.364-7.364l-2.828 2.828m-4.95 4.95L7.05 16.95m9.9 0l-2.828-2.828m-4.95-4.95L7.05 7.05"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <span>Waiting for grading...</span>
+              </div>
+
+              <!-- Finished: show grade -->
+            </div>
+          </div>
+
+          <!-- Footer Buttons -->
+          <div class="px-5 pb-5 mt-auto">
+            <!-- ACTIVE → can start -->
+            <button
+              *ngIf="quiz.status === 'active'"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 max-sm:hidden"
+              (click)="launchSEB()"
+            >
+              Start Quiz in SEB
+            </button>
+            <button
+              *ngIf="quiz.status === 'active'"
+              hlmBtn
+              (click)="startQuiz(quiz)"
+              class="w-full h-12 flex items-center justify-center gap-2"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                ></path>
+                <path
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                ></path>
+              </svg>
+              {{ quiz.started ? "Continue Quiz" : "Start Quiz" }}
+            </button>
+            <!-- Other statuses → disabled with SVG -->
+            <div
+              *ngIf="quiz.status === 'finished'"
+              class="flex w-full justify-between items-center p-3 bg-success-soft mb-2 text-green-700"
+            >
+              <span>Your Score:</span>
+              <span> {{ quiz.grade }}/{{ getTotalPoints(quiz) }}</span>
+            </div>
+
+            <button
+              [routerLink]="['/review-quiz', quiz.id]"
+              *ngIf="quiz.status === 'finished'"
+              hlmBtn
+              variant="outline"
+              class="w-full h-12 flex items-center justify-center gap-2 border-none text-md"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M4 6h16M4 12h16m-7 6h7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                ></path>
+              </svg>
+              Review
+            </button>
+
+            <button
+              *ngIf="quiz.status !== 'active' && quiz.status !== 'finished'"
+              class="w-full h-12 rounded-md bg-secondary text-secondary-foreground cursor-not-allowed flex items-center justify-center gap-2"
+              disabled
+            >
+              <ng-container [ngSwitch]="quiz.status">
+                <!-- Scheduled -->
+                <svg
+                  *ngSwitchCase="'scheduled'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-clock"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+
+                <!-- Expired -->
+                <svg
+                  *ngSwitchCase="'expired'"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 18L18 6M6 6l12 12"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  />
+                </svg>
+
+                <!-- Grading -->
+                <svg
+                  *ngSwitchCase="'grading'"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+              </ng-container>
+
+              {{
+                quiz.status === "grading"
+                  ? "Pending Review"
+                  : (quiz.status | titlecase)
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+  <ng-template #noQuiz>
+    <ng-container>
+      <div
+        class="flex flex-col items-center justify-center text-center text-muted-foreground pt-16"
+      >
+        <!-- Better-looking SVG (clipboard with checkmark) -->
+        <svg
+          class="mx-auto sm:h-60 sm:w-80 h-40 w-60 mb-5"
+          viewBox="0 0 200 150"
+        >
+          <defs>
+            <linearGradient
+              id="clipboardGradient"
+              x1="0%"
+              x2="100%"
+              y1="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                style="stop-color: #60a5fa; stop-opacity: 1"
+              ></stop>
+              <stop
+                offset="100%"
+                style="stop-color: #cbd8ed; stop-opacity: 1"
+              ></stop>
+            </linearGradient>
+          </defs>
+          <rect
+            fill="#f0f9ff"
+            height="120"
+            rx="10"
+            ry="10"
+            stroke="#93c5fd"
+            stroke-width="3"
+            width="120"
+            x="40"
+            y="20"
+          ></rect>
+          <path
+            d="M70,20 V10 a5,5 0 0 1 5,-5 h50 a5,5 0 0 1 5,5 v10"
+            fill="#e0f2fe"
+            stroke="#93c5fd"
+            stroke-width="3"
+          ></path>
+          <rect
+            fill="#bfdbfe"
+            height="10"
+            rx="5"
+            ry="5"
+            width="40"
+            x="80"
+            y="5"
+          ></rect>
+          <line
+            stroke="#dbeafe"
+            stroke-linecap="round"
+            stroke-width="2"
+            x1="60"
+            x2="140"
+            y1="50"
+            y2="50"
+          ></line>
+          <line
+            stroke="#dbeafe"
+            stroke-linecap="round"
+            stroke-width="2"
+            x1="60"
+            x2="140"
+            y1="70"
+            y2="70"
+          ></line>
+          <line
+            stroke="#dbeafe"
+            stroke-linecap="round"
+            stroke-width="2"
+            x1="60"
+            x2="110"
+            y1="90"
+            y2="90"
+          ></line>
+          <g transform="rotate(30, 140, 110)">
+            <rect
+              fill="#fde047"
+              height="60"
+              rx="3"
+              stroke="#fbbf24"
+              stroke-width="2"
+              width="10"
+              x="125"
+              y="70"
+            ></rect>
+            <polygon fill="#4b5563" points="125,130 135,130 130,140"></polygon>
+            <rect fill="#f9a8d4" height="10" width="10" x="125" y="70"></rect>
+          </g>
+          <circle
+            cx="30"
+            cy="40"
+            fill="url(#clipboardGradient)"
+            opacity="0.6"
+            r="8"
+          ></circle>
+          <rect
+            fill="none"
+            height="15"
+            rx="4"
+            ry="4"
+            stroke="#60a5fa"
+            stroke-width="2"
+            transform="rotate(20, 172.5, 37.5)"
+            width="15"
+            x="165"
+            y="30"
+          ></rect>
+          <path
+            d="M160 120 l 10 -15 l 10 15 Z"
+            fill="#eff6ff"
+            stroke="#93c5fd"
+            stroke-width="2"
+          ></path>
+        </svg>
+
+        <!-- Headline -->
+        <p class="sm:text-4xl text-3xl font-bold text-foreground">
+          Sorry, No Quizzes Available
+        </p>
+
+        <!-- Subtext -->
+        <p class="sm:text-base text-sm text-gray-500 mt-3">
+          📝 Please check back later for new quizzes.
+        </p>
+      </div>
+    </ng-container>
+  </ng-template>
+</main>

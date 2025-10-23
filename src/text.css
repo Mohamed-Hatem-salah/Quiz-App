@@ -1,0 +1,286 @@
+@import "@angular/cdk/overlay-prebuilt.css";
+@import "tailwindcss";
+@import "@spartan-ng/brain/hlm-tailwind-preset.css";
+
+@theme inline {
+  /* -------------------------
+     Primary Colors
+  ------------------------- */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-glow: var(--primary-glow);
+
+  /* Secondary Colors */
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+
+  /* -------------------------
+     Blacky Colors
+  ------------------------- */
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-input: var(--input);
+  --color-input-focus: var(--input-focus);
+  --color-ring: var(--ring);
+
+  /* -------------------------
+     Whity Colors
+  ------------------------- */
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-border: var(--card-border);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  /* -------------------------
+     Status Colors
+  ------------------------- */
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* -------------------------
+     Shadows
+  ------------------------- */
+  --shadow-soft: var(--shadow-soft);
+  --shadow-medium: var(--shadow-medium);
+  --shadow-strong: var(--shadow-strong);
+  --shadow-primary: var(--shadow-primary);
+
+  /* -------------------------
+     Transitions
+  ------------------------- */
+  --transition-fast: var(--transition-fast);
+  --transition-smooth: var(--transition-smooth);
+  --transition-slow: var(--transition-slow);
+
+  --radius-main: var(--radius);
+}
+:root {
+  /* -------------------------
+     Primary Colors
+  ------------------------- */
+  /* Primary Brand Colors - Blue Theme */
+  --primary: #3388ff; /* 213 93% 50% */
+  --primary-hover: #085fc8; /* 213 93% 45% */
+  --primary-foreground: #ffffff; /* 0 0% 100% */
+  --primary-soft: #e8f1fe; /* 213 93% 92% */
+  --primary-glow: #4da3ff; /* 213 100% 70% */
+
+  /* Secondary Colors */
+  --secondary: #eeeff2; /* 216 12% 94% */
+  --secondary-hover: #dcdde0; /* 216 12% 88% */
+  --secondary-foreground: #374454; /* 220 15% 20% */
+  --accent: #f0f9ff; /* 213 100% 94% */
+  --accent-hover: #d9f0ff; /* 213 100% 88% */
+  --accent-foreground: #1767d2; /* 213 93% 50% */
+  --accent-soft: #f7fdff; /* 213 100% 96% */
+
+  /* -------------------------
+     Blacky Colors
+  ------------------------- */
+
+  --border: #e2e4e9; /* 220 13% 91% */
+  --border-hover: #cdd1d9; /* 220 13% 85% */
+  --input: #eeeff2; /* 216 12% 94% */
+  --input-focus: #e3e5e9; /* 216 12% 91% */
+  --ring: #096bde; /* 213 93% 50% */
+
+  /* -------------------------
+     Whity Colors
+  ------------------------- */
+  --background: #fafafa; /* 0 0% 98% */
+  --foreground: #2d3a4f; /* 220 15% 9% */
+  --surface: #eeeff2; /* 216 12% 94% */
+  --surface-hover: #e3e5e9; /* 216 12% 91% */
+  /* Card & Panel Colors */
+  --card: #ffffff;
+  --card-foreground: #121822;
+  --card-border: #e2e4e9;
+
+  /* Popover Colors */
+  --popover: #ffffff;
+  --popover-foreground: #121822;
+  /* Muted Colors */
+  --muted: #eeeff2;
+  --muted-foreground: #6e7787;
+
+  /* -------------------------
+     Status Colors
+  ------------------------- */
+  /* Status Colors */
+  --success: #3fcc8f; /* 145 63% 42% */
+  --success-foreground: #ffffff; /* 0 0% 100% */
+  --success-soft: #e6f7f0; /* 145 63% 92% */
+
+  --warning: #f2ce61; /* 45 93% 58% */
+  --warning-foreground: #121822; /* 220 15% 9% */
+  --warning-soft: #fdf4d3; /* 45 93% 90% */
+
+  --destructive: #eb4f4f; /* 0 84% 60% */
+  --destructive-hover: #dc2626; /* 0 84% 55% */
+  --destructive-foreground: #ffffff; /* 0 0% 100% */
+  --destructive-soft: #fee2e2; /* 0 84% 92% */
+
+  /* -------------------------
+     Shadows
+  ------------------------- */
+  --shadow-soft: 0 2px 8px -2px hsl(220 15% 9% / 0.08);
+  --shadow-medium: 0 4px 16px -4px hsl(220 15% 9% / 0.12);
+  --shadow-strong: 0 8px 32px -8px hsl(220 15% 9% / 0.16);
+  --shadow-primary: 0 8px 32px -8px hsl(213 93% 50% / 0.3);
+
+  /* -------------------------
+     Additional Palette
+  ------------------------- */
+  --radius: 0.325rem; /* 5px */
+}
+
+/* -------------------------
+   Base Styles
+-------------------------- */
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+/* -------------------------
+   Utilities
+-------------------------- */
+@layer utilities {
+  .shadow-sidebar {
+    @apply [box-shadow:0_30px_80px_rgba(0,0,0,0.5)];
+  }
+  .sidebar-font-scale {
+    @apply [font-size:clamp(0.5rem,4vw,1rem)];
+  }
+  .layout {
+    @apply p-6 lg:p-8 bg-background;
+  }
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(213 93% 50%), hsl(213 100% 70%));
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, hsl(213 100% 94%), hsl(213 100% 88%));
+  }
+  .gradient-surface {
+    background: linear-gradient(135deg, hsl(0 0% 98%), hsl(216 12% 96%));
+  }
+  .gradient-card {
+    background: linear-gradient(135deg, hsl(0 0% 100%), hsl(216 12% 99%));
+  }
+}
+
+/* -------------------------
+   Components
+-------------------------- */
+@layer components {
+  .card {
+    @apply bg-card text-foreground rounded-md shadow-md p-6;
+  }
+}
+.hover-none {
+  background-color: var(--primary-soft) !important;
+}
+
+.my-autofill-input:-webkit-autofill,
+.my-autofill-input:-webkit-autofill:focus,
+.my-autofill-input:-webkit-autofill:hover,
+.my-autofill-input:-webkit-autofill:active {
+  -webkit-box-shadow: inset 0 0 0 1000px #fee2e2 !important; /* background */
+  -webkit-text-fill-color: #e53e3e !important; /* text color */
+  transition: background-color 5000s ease-in-out 0s;
+  border: 2px solid #e53e3e; /* optional border */
+}
+
+.button-click {
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out, background-color 0.1s ease-in-out,
+    color 0.1s ease-in-out;
+}
+
+.button-click:active {
+  transform: scale(0.95);
+}
+
+.btn-active {
+  background-color: var(--success) !important;
+}
+
+.btn-active-app {
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+
+@keyframes countdown {
+  0% {
+    transform: scale(1);
+    color: var(--destructive);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    color: red;
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    color: var(--destructive);
+    opacity: 1;
+  }
+}
+
+.time-critical {
+  animation: countdown 1.2s infinite;
+  font-weight: bold;
+}
+
+/* <button
+        class="relative rounded-full p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-3 w-3 bg-destructive"
+          ></span>
+        </span>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </button> */

@@ -1,0 +1,57 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "paths": {
+      "@spartan-ng/helm/button": [
+        "./libs/ui/ui-button-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/sheet": [
+        "./libs/ui/ui-sheet-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/icon": [
+        "./libs/ui/ui-icon-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/badge": [
+        "./libs/ui/ui-badge-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/dialog": [
+        "./libs/ui/ui-dialog-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/tooltip": [
+        "./libs/ui/ui-tooltip-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/input": [
+        "./libs/ui/ui-input-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/sonner": [
+        "./libs/ui/ui-sonner-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/select": [
+        "./libs/ui/ui-select-helm/src/index.ts"
+      ],
+      "@spartan-ng/helm/popover": [
+        "./libs/ui/ui-popover-helm/src/index.ts"
+      ]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

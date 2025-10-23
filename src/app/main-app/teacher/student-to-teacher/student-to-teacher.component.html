@@ -1,0 +1,445 @@
+<section class="p-8 max-sm:px-2 max-sm:pt-0 max-sm:pb-6 bg-background">
+  <!-- Header Section -->
+  <div class="text-center mb-8 max-sm:hidden">
+    <h1 class="text-4xl font-bold text-foreground mb-2 max-sm:text-3xl ">
+      Review Attendance
+    </h1>
+    <p class="text-muted-foreground text-lg max-sm:text-base">
+      Track student quiz performance and attendance records
+    </p>
+  </div>
+
+  <div class="lg:max-w-[95%] mx-auto space-y-8 max-sm:mt-6">
+    <!-- Navigation and Search Bar -->
+    <div class="flex justify-between max-sm:justify-center items-center max-sm:flex-col max-sm:gap-4">
+      <button
+        variant="outline"
+        hlmBtn
+        type="button"
+        class="flex items-center group max-sm:hidden hover:bg-primary-soft transition-all duration-200"
+        (click)="goBack()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+        >
+          <path
+            d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+          />
+        </svg>
+        <span class="text-base ml-2">Back</span>
+      </button>
+
+      <div class="flex items-center gap-4 max-sm:w-full max-sm:flex-col">
+        <div class="relative max-sm:w-full">
+          <input
+            hlmInput
+            type="text"
+            placeholder="Search students by name..."
+            class="search-input pr-12 max-sm:w-full h-12 pl-4 border-2 border-border focus:border-primary transition-colors"
+            [(ngModel)]="searchTerm"
+            (input)="filterAttendances()"
+          />
+          <svg
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+        
+        <button
+          hlmBtn
+          variant="outline"
+          class="flex items-center gap-2 max-sm:w-full max-sm:justify-center h-12 hover:bg-primary-soft transition-all duration-200"
+          (click)="exportToCSV()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-download-icon lucide-download"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" x2="12" y1="15" y2="3" />
+          </svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card attendance-card p-8 shadow-lg border border-card-border hover:shadow-xl transition-shadow duration-300">
+      <!-- Card Header -->
+      <div class="flex justify-between items-center mb-8 max-lg:flex-col max-lg:items-start max-lg:gap-6 ">
+        <div>
+          <h2 class="text-2xl font-bold text-foreground mb-2">Student Attendance Records</h2>
+          <p class="text-muted-foreground">Monitor quiz completion and performance</p>
+        </div>
+        
+        <div class="flex items-center gap-4 max-sm:w-full max-sm:flex-col max-sm:gap-4">
+          <div class="flex items-center gap-3 max-sm:w-full">
+            <label class="text-sm font-semibold text-foreground max-sm:hidden">Filter by Quiz:</label>
+            <select
+              hlmInput
+              class="filter-select w-56 max-sm:w-full h-11 border-2 border-border focus:border-primary transition-colors"
+              [(ngModel)]="selectedQuizId"
+              (change)="filterByQuiz()"
+            >
+              <option value="">All Quizzes</option>
+              <option *ngFor="let quiz of quizzes" [value]="quiz.id">
+                {{ quiz.title }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="flex items-center gap-3 max-sm:w-full">
+            <label class="text-sm font-semibold text-foreground max-sm:hidden">Filter by Status:</label>
+            <select
+              hlmInput
+              class="filter-select w-48 max-sm:w-full h-11 border-2 border-border focus:border-primary transition-colors"
+              [(ngModel)]="selectedStatus"
+              (change)="filterByStatus()"
+            >
+              <option value="">All Statuses</option>
+              <option *ngFor="let status of statusOptions" [value]="status">
+                {{ status | titlecase }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Table -->
+      <ng-container *ngIf="filteredAttendances.length > 0; else noAttendance">
+        <div class="attendance-table-container overflow-x-auto rounded-lg border border-border">
+          <table class="attendance-table w-full bg-white">
+            <thead class="bg-gradient-to-r from-primary-soft to-accent-soft">
+              <tr>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Student Name
+                  </div>
+                </th>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Total Grade
+                  </div>
+                </th>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Started At
+                  </div>
+                </th>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Submitted At
+                  </div>
+                </th>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Status
+                  </div>
+                </th>
+                <th class="text-left py-4 px-6 font-bold text-foreground text-base">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Actions
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let attendance of paginatedAttendances; let i = index"
+                class="border-b border-border hover:bg-gradient-to-r hover:from-primary-soft/30 hover:to-accent-soft/30 transition-all duration-200 group"
+                [class.bg-muted/20]="i % 2 === 0"
+              >
+                <!-- Student Name -->
+                <td class="py-6 px-6">
+                  <div class="flex items-center gap-3">
+                    <div class="student-avatar w-10 h-10 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {{ attendance.studentName.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="font-semibold text-foreground text-base">{{ attendance.studentName }}</div>
+                      <div class="text-sm text-muted-foreground">{{ attendance.studentEmail }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Total Grade -->
+                <td class="py-6 px-6">
+                  <div class="flex items-center gap-2">
+                    <div 
+                      class="grade-indicator w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
+                      [ngClass]="{
+                        'bg-success-soft text-success': attendance.totalGrade >= 80,
+                        'bg-warning-soft text-warning': attendance.totalGrade >= 60 && attendance.totalGrade < 80,
+                        'bg-destructive-soft text-destructive': attendance.totalGrade < 60 && attendance.totalGrade > 0,
+                        'bg-muted text-muted-foreground': !attendance.totalGrade
+                      }"
+                    >
+                      {{ attendance.totalGrade || 'N/A' }}
+                    </div>
+                    <div>
+                      <div class="font-semibold text-foreground">
+                        {{ attendance.totalGrade ? attendance.totalGrade + '%' : 'Not Graded' }}
+                      </div>
+                      <div class="text-sm text-muted-foreground">
+                        {{ attendance.totalGrade >= 80 ? 'Excellent' : 
+                           attendance.totalGrade >= 60 ? 'Good' : 
+                           attendance.totalGrade > 0 ? 'Needs Improvement' : 'Pending' }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Started At -->
+                <td class="py-6 px-6">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <div class="font-medium text-foreground">{{ attendance.startedAt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="text-sm text-muted-foreground">{{ attendance.startedAt | date: 'h:mm a' }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Submitted At -->
+                <td class="py-6 px-6">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <div>
+                      <div class="font-medium text-foreground">{{ attendance.submittedAt | date: 'MMM dd, yyyy' }}</div>
+                      <div class="text-sm text-muted-foreground">{{ attendance.submittedAt | date: 'h:mm a' }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td class="py-6 px-6">
+                  <span
+                    class="status-badge inline-flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-full whitespace-nowrap"
+                    [ngClass]="{
+                      'bg-success-soft text-success': attendance.status === 'graded',
+                      'bg-primary-soft text-primary': attendance.status === 'completed',
+                      'bg-warning-soft text-warning': attendance.status === 'in-progress',
+                      'bg-muted text-muted-foreground': attendance.status === 'not-started'
+                    }"
+                  >
+                    <div class="w-2 h-2 rounded-full" 
+                         [ngClass]="{
+                           'bg-success': attendance.status === 'graded',
+                           'bg-primary': attendance.status === 'completed',
+                           'bg-warning': attendance.status === 'in-progress',
+                           'bg-muted-foreground': attendance.status === 'not-started'
+                         }">
+                    </div>
+                    {{ attendance.status | titlecase }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="py-6 px-6">
+                  <div class="flex gap-2">
+                    <button
+                      hlmBtn
+                      variant="outline"
+                      size="sm"
+                      (click)="viewDetails(attendance)"
+                      class="action-btn flex items-center gap-2 hover:bg-primary-soft transition-all duration-200"
+                      [disabled]="attendance.status === 'not-started' || attendance.status === 'in-progress'"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-eye-icon lucide-eye"
+                      >
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      View
+                    </button>
+                    <button
+                      hlmBtn
+                      variant="ghost"
+                      size="sm"
+                      (click)="addTeacherNotes(attendance)"
+                      class="action-btn flex items-center gap-2 hover:bg-accent-soft transition-all duration-200"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-pencil-icon lucide-pencil"
+                      >
+                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.5z" />
+                        <path d="m15 5 4 4" />
+                      </svg>
+                      Notes
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-8 p-4 bg-muted/30 rounded-lg">
+          <p class="text-sm text-muted-foreground font-medium">
+            Showing {{ paginatedAttendances.length }} of {{ filteredAttendances.length }} records
+            <span class="text-foreground font-semibold">(Page {{ currentPage }} of {{ totalPages }})</span>
+          </p>
+          <div class="flex gap-3">
+            <button
+              hlmBtn
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage === 1"
+              (click)="previousPage()"
+              class="pagination-btn hover:bg-primary-soft transition-all duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
+            </button>
+            <button
+              hlmBtn
+              variant="outline"
+              size="sm"
+              [disabled]="currentPage >= totalPages"
+              (click)="nextPage()"
+              class="pagination-btn hover:bg-primary-soft transition-all duration-200"
+            >
+              Next
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- No Data State -->
+      <ng-template #noAttendance>
+        <div class="text-center py-16 text-muted-foreground">
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary-soft to-accent-soft rounded-full flex items-center justify-center">
+            <svg
+              class="w-12 h-12 text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-foreground mb-3">No attendance records found</h3>
+          <p class="text-base max-w-md mx-auto">There are no quiz attendance records matching your current filters. Try adjusting your search criteria or check back later.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Teacher Notes Modal -->
+  <div *ngIf="showNotesModal" class="notes-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 ">
+    <div class="bg-white rounded-xl p-8 w-full max-w-lg shadow-2xl border border-card-border">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-primary-soft rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-foreground">Add Teacher Notes</h3>
+      </div>
+      
+      <div class="bg-muted/30 rounded-lg p-4 mb-6">
+        <p class="text-sm text-muted-foreground mb-1">Student & Quiz</p>
+        <p class="font-semibold text-foreground">
+          {{ currentAttendance?.studentName }} - {{ getQuizTitle(currentAttendance?.quizId || '') }}
+        </p>
+      </div>
+      
+      <textarea
+        hlmInput
+        [(ngModel)]="teacherNotes"
+        placeholder="Enter your notes here..."
+        rows="5"
+        class="w-full mb-6 border-2 border-border focus:border-primary transition-colors resize-none"
+      ></textarea>
+      
+      <div class="flex justify-end gap-3">
+        <button hlmBtn variant="outline" (click)="closeNotesModal()" class="hover:bg-muted transition-all duration-200">
+          Cancel
+        </button>
+        <button hlmBtn (click)="saveTeacherNotes()" class="hover:bg-primary-hover transition-all duration-200">
+          Save Notes
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

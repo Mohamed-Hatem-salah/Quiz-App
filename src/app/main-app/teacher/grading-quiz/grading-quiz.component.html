@@ -1,0 +1,261 @@
+<section
+  class="lg:max-w-[70%] p-8 max-sm:pb-4 max-sm:px-2 max-sm:pt-0 mx-auto"
+  *ngIf="quiz"
+>
+  <div class="mb-10 max-sm:mb-5 text-center">
+    <h2
+      class="text-center text-foreground text-3xl font-semibold mt-5 max-sm:hidden"
+    >
+      Grading Interface
+    </h2>
+    <p
+      class="text-base max-sm:text-xl max-sm:font-semibold text-[var(--text-secondary)] mt-1 max-sm:py-4"
+    >
+      Quiz: {{ quiz.title }} | Student: {{ studentName || "N/A" }}
+    </p>
+
+    <button
+      variant="outline"
+      hlmBtn
+      class="flex items-center group max-sm:hidden mb-4"
+      (click)="goBack()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+      >
+        <path
+          d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+        />
+      </svg>
+      <span class="text-base">Back</span>
+    </button>
+
+    <div
+      *ngFor="let q of quiz.questions; let i = index"
+      class="card mb-12 max-sm:mb-6 last:mb-0"
+    >
+      <div class="flex justify-between items-start mb-4">
+        <p
+          class="text-lg font-semibold text-primary mb-4 flex-1 text-left break-words"
+        >
+          <span class="font-bold">{{ i + 1 }}.</span> {{ q.text }}
+        </p>
+
+        <ng-container *ngIf="q.type === 'mcq'">
+          <div
+            class="flex items-center gap-2 text-sm font-medium px-3 py-1 max-sm:px-2 max-sm:py-0.75 rounded-full whitespace-nowrap"
+            [ngClass]="{
+              'text-green-600 bg-green-100': isCorrect(q),
+              'text-red-600 bg-red-100': !isCorrect(q)
+            }"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                *ngIf="isCorrect(q)"
+                clip-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                fill-rule="evenodd"
+              ></path>
+              <path
+                *ngIf="!isCorrect(q)"
+                clip-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                fill-rule="evenodd"
+              ></path>
+            </svg>
+            <span>{{ isCorrect(q) ? "Correct" : "Incorrect" }}</span>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="space-y-3" *ngIf="q.type === 'mcq'">
+        <div
+          *ngFor="let o of q.options"
+          class="flex items-center p-4 rounded-md border-2 border-border cursor-pointer transition-colors"
+          [ngClass]="{
+            'bg-green-50 border-success font-semibold':
+              correctOptionId(q) === o.id,
+            'bg-green-100 font-semibold': isSelected(q, o.id) && isCorrect(q),
+            'bg-red-50 border-destructive font-semibold':
+              isSelected(q, o.id) && !isCorrect(q)
+          }"
+        >
+          <div class="flex items-center justify-between w-full">
+            <div class="max-w-[90%]">
+              <p>{{ o.text }}</p>
+            </div>
+
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class="text-success"
+                *ngIf="correctOptionId(q) === o.id"
+                clip-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                fill-rule="evenodd"
+              ></path>
+              <path
+                class="text-destructive"
+                *ngIf="isSelected(q, o.id) && !isCorrect(q)"
+                clip-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                fill-rule="evenodd"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-3" *ngIf="q.type === 'written'">
+        <div
+          class="flex items-center p-4 rounded-md border border-gray-200 bg-gray-50 mb-4"
+        >
+          <p>{{ studentAnswer(q) }}</p>
+        </div>
+        <div class="flex items-center justify-end gap-3">
+          <label
+            class="text-sm font-medium text-gray-500"
+            [for]="'score-' + q.id"
+            >Points:</label
+          >
+          <input
+            hlmInput
+            class="w-20 h-8"
+            [id]="'score-' + q.id"
+            type="number"
+            [(ngModel)]="questionScores[q.id]"
+          />
+          <span class="font-bold text-gray-500">/ {{ q.points }}</span>
+        </div>
+      </div>
+
+      <div
+        class="mt-4 flex items-end flex-col justify-center gap-3"
+        *ngIf="q.type === 'mcq'"
+      >
+        <div class="flex items-center gap-3">
+          <p class="text-sm font-medium text-gray-500">Points:</p>
+          <p class="font-bold text-[var(--text-primary)]">
+            {{
+              showGradeInput[q.id]
+                ? manualScores[q.id] || 0
+                : studentAnswer(q) === correctAnswer(q)
+                ? q.points
+                : 0
+            }}
+            / {{ q.points }}
+          </p>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <!-- Manual grading button -->
+          <button hlmBtn (click)="toggleManualInput(q.id)">Manual Grade</button>
+
+          <!-- Show input if toggled -->
+          <ng-container *ngIf="showGradeInput[q.id]">
+            <input
+              hlmInput
+              class="w-20 h-8"
+              [id]="'score-' + q.id"
+              type="number"
+              [(ngModel)]="manualScores[q.id]"
+            />
+            <span class="font-bold text-gray-500">/ {{ q.points }}</span>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="mt-4 text-left">
+        <label
+          class="text-sm font-medium text-gray-500"
+          for="explanation-{{ q.id }}"
+        >
+          Explanation:
+        </label>
+        <textarea
+          id="explanation-{{ q.id }}"
+          class="mt-2"
+          [(ngModel)]="questionExplanations[q.id]"
+          hlmInput
+          rows="2"
+          placeholder="Add explanation for this question"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="mt-8 flex justify-end max-sm:justify-center">
+    <hlm-dialog>
+      <button
+        brnDialogTrigger
+        hlmBtn
+        type="button"
+        class="px-6 py-5 text-white rounded-md hover:bg-primary-dark"
+      >
+        Submit Grades
+      </button>
+
+      <hlm-dialog-content
+        *brnDialogContent="let ctx"
+        class="max-sm:w-[95%] max-sm:mx-auto"
+      >
+        <hlm-dialog-header>
+          <div class="flex items-center gap-2 mb-5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-package-plus-icon lucide-package-plus w-10 h-10 bg-primary-soft p-2 text-primary rounded-main"
+            >
+              <path d="M16 16h6" />
+              <path d="M19 13v6" />
+              <path
+                d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"
+              />
+              <path d="m7.5 4.27 9 5.15" />
+              <polyline points="3.29 7 12 12 20.71 7" />
+              <line x1="12" x2="12" y1="22" y2="12" />
+            </svg>
+            <h3
+              brnDialogTitle
+              hlm
+              class="flex items-center gap-2 text-xl font-semibold"
+            >
+              Submit Grades
+            </h3>
+          </div>
+
+          <p brnDialogDescription hlm>
+            Are you sure you want to Submit this Grade?
+          </p>
+        </hlm-dialog-header>
+        <hlm-dialog-footer class="gap-y-2">
+          <button hlmBtn variant="outline" (click)="ctx.close()">Cancel</button>
+          <button hlmBtn type="button" (click)="submitGrades()">
+            Yes, Submit Grades
+          </button>
+        </hlm-dialog-footer>
+      </hlm-dialog-content>
+    </hlm-dialog>
+  </div>
+</section>

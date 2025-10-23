@@ -1,0 +1,749 @@
+<section class="p-8 max-sm:px-2 max-sm:pt-0 max-sm:pb-6 bg-background">
+  <h1
+    class="text-center text-foreground text-3xl font-semibold mt-5 max-sm:hidden"
+  >
+    Quiz Settings
+  </h1>
+
+  <div
+    class="lg:max-w-[70%] mx-auto space-y-8 max-sm:space-y-4 mt-5"
+    [formGroup]="quizForm"
+  >
+    <div class="flex items-center justify-between max-sm:justify-center">
+      <button
+        variant="outline"
+        hlmBtn
+        type="button"
+        class="flex items-center max-sm:hidden group"
+        (click)="goBack()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+        >
+          <path
+            d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+          />
+        </svg>
+
+        <span class="text-base">Back</span>
+      </button>
+      <div class="flex justify-center">
+        <hlm-dialog>
+          <button
+            brnDialogTrigger
+            hlmBtn
+            class="px-6 py-5 text-white rounded-md bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 hover:from-blue-600 hover:via-purple-600 hover:to-red-600 transition-colors duration-200 shadow-lg"
+          >
+            Create Quiz by AI
+          </button>
+
+          <hlm-dialog-content
+            *brnDialogContent="let ctx"
+            class="max-sm:mx-auto p-6 max-sm:w-[95%] md:h-auto h-screen overflow-y-scroll"
+          >
+            <hlm-dialog-header>
+              <h3 brnDialogTitle hlm class="text-xl font-semibold mb-4">
+                Generate Quiz with AI
+              </h3>
+              <p brnDialogDescription hlm>
+                Specify topic and number of questions per type/difficulty.
+              </p>
+            </hlm-dialog-header>
+
+            <div class="space-y-4 mt-4">
+              <!-- Topic -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">
+                  Topic <span class="text-destructive">*</span>
+                </label>
+                <input
+                  hlmInput
+                  type="text"
+                  [formControl]="aiQuizTopic"
+                  maxlength="50"
+                  placeholder="Enter quiz topic"
+                  #topicInput
+                  (keydown.enter)="focusNext(DescriptionInputai)"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">
+                  Description <span class="text-destructive">*</span>
+                </label>
+                <textarea
+                  hlmInput
+                  [disabled]="isLoadingAI"
+                  rows="3"
+                  #DescriptionInputai
+                  [formControl]="aiQuizDescription"
+                  maxlength="100"
+                  placeholder="Enter quiz description"
+                  class="w-full"
+                  (keydown.enter)="focusNext(mcqEasyPointsInput)"
+                ></textarea>
+              </div>
+              <!-- MCQ Numbers -->
+              <div class="mt-4">
+                <h4 class="font-medium text-gray-700 mb-2">MCQ Questions</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <!-- Easy -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Easy</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiMCQEasyPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #mcqEasyPointsInput
+                          (keydown.enter)="focusNext(mcqEasyCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiMCQEasy"
+                      min="0"
+                      placeholder="Count"
+                      #mcqEasyCountInput
+                      (keydown.enter)="focusNext(mcqMediumPointsInput)"
+                    />
+                  </div>
+
+                  <!-- Medium -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Medium</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiMCQMediumPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #mcqMediumPointsInput
+                          (keydown.enter)="focusNext(mcqMediumCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiMCQMedium"
+                      min="0"
+                      placeholder="Count"
+                      #mcqMediumCountInput
+                      (keydown.enter)="focusNext(mcqHardPointsInput)"
+                    />
+                  </div>
+
+                  <!-- Hard -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Hard</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiMCQHardPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #mcqHardPointsInput
+                          (keydown.enter)="focusNext(mcqHardCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiMCQHard"
+                      min="0"
+                      placeholder="Count"
+                      #mcqHardCountInput
+                      (keydown.enter)="focusNext(writtenEasyPointsInput)"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Written Numbers -->
+              <div class="mt-4">
+                <h4 class="font-medium text-gray-700 mb-2">
+                  Written Questions
+                </h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <!-- Easy -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Easy</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiWrittenEasyPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #writtenEasyPointsInput
+                          (keydown.enter)="focusNext(writtenEasyCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiWrittenEasy"
+                      min="0"
+                      placeholder="Count"
+                      #writtenEasyCountInput
+                      (keydown.enter)="focusNext(writtenMediumPointsInput)"
+                    />
+                  </div>
+
+                  <!-- Medium -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Medium</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiWrittenMediumPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #writtenMediumPointsInput
+                          (keydown.enter)="focusNext(writtenMediumCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiWrittenMedium"
+                      min="0"
+                      placeholder="Count"
+                      #writtenMediumCountInput
+                      (keydown.enter)="focusNext(writtenHardPointsInput)"
+                    />
+                  </div>
+
+                  <!-- Hard -->
+                  <div>
+                    <label
+                      class="flex items-center text-sm font-medium text-gray-700"
+                    >
+                      <div class="flex items-center justify-between w-full">
+                        <span>Hard</span>
+                        <input
+                          hlmInput
+                          type="number"
+                          [formControl]="aiWrittenHardPoints"
+                          class="w-15 h-6 text-xs px-1"
+                          min="1"
+                          placeholder="Grade"
+                          #writtenHardPointsInput
+                          (keydown.enter)="focusNext(writtenHardCountInput)"
+                        />
+                      </div>
+                    </label>
+                    <input
+                      hlmInput
+                      type="number"
+                      [formControl]="aiWrittenHard"
+                      min="0"
+                      placeholder="Count"
+                      #writtenHardCountInput
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hlm-dialog-footer class="flex justify-end gap-2 mt-6">
+              <button hlmBtn variant="outline" (click)="ctx.close()">
+                Cancel
+              </button>
+              <button
+                hlmBtn
+                type="button"
+                [disabled]="isLoadingAI"
+                (click)="
+                  createQuizByAI(
+                    {
+                      topic: aiQuizTopic.value || 'Test Topic',
+                      description:
+                        aiQuizDescription.value || 'No description provided',
+                      mcq: {
+                        easy: aiMCQEasy.value ?? 0,
+                        medium: aiMCQMedium.value ?? 0,
+                        hard: aiMCQHard.value ?? 0
+                      },
+                      written: {
+                        easy: aiWrittenEasy.value ?? 0,
+                        medium: aiWrittenMedium.value ?? 0,
+                        hard: aiWrittenHard.value ?? 0
+                      },
+                      points: {
+                        mcq: {
+                          easy: aiMCQEasyPoints.value ?? 5,
+                          medium: aiMCQMediumPoints.value ?? 10,
+                          hard: aiMCQHardPoints.value ?? 15
+                        },
+                        written: {
+                          easy: aiWrittenEasyPoints.value ?? 5,
+                          medium: aiWrittenMediumPoints.value ?? 10,
+                          hard: aiWrittenHardPoints.value ?? 15
+                        }
+                      }
+                    },
+                    ctx
+                  )
+                "
+              >
+                <span *ngIf="!isLoadingAI">Generate Quiz</span>
+                <div *ngIf="isLoadingAI" class="flex items-center gap-1">
+                  <svg
+                    class="w-5 h-5 animate-spin"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 4v4m0 8v4m8-8h-4m-8 0H4m12.364-7.364l-2.828 2.828m-4.95 4.95L7.05 16.95m9.9 0l-2.828-2.828m-4.95-4.95L7.05 7.05"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    ></path>
+                  </svg>
+                  <span>Generating...</span>
+                </div>
+              </button>
+            </hlm-dialog-footer>
+          </hlm-dialog-content>
+        </hlm-dialog>
+      </div>
+    </div>
+    <div class="card grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label
+          id="quiz-title-label"
+          for="quiz-title"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Quiz Title <span class="text-destructive">*</span>
+        </label>
+        <input
+          id="quiz-title"
+          hlmInput
+          maxlength="20"
+          formControlName="title"
+          placeholder="Enter quiz title"
+          autofocus
+          (keydown.enter)="focusNext(descriptionInput)"
+        />
+      </div>
+      <div>
+        <label
+          id="quiz-desc-label"
+          for="quiz-description"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Description (Optional)
+        </label>
+        <textarea
+          id="quiz-description"
+          #descriptionInput
+          hlmInput
+          formControlName="description"
+          placeholder="Enter description"
+          rows="3"
+          maxlength="40"
+          class="overflow-hidden text-start"
+          (keydown.enter)="focusNext(durationInput)"
+        ></textarea>
+      </div>
+      <div>
+        <label
+          id="quiz-duration-label"
+          for="duration"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Duration (minutes) <span class="text-destructive">*</span>
+        </label>
+        <input
+          id="duration"
+          #durationInput
+          hlmInput
+          type="number"
+          min="1"
+          max="300"
+          formControlName="duration"
+          class="form-input"
+          (keydown.enter)="focusNext(startTimeInput)"
+        />
+      </div>
+      <div>
+        <label
+          id="quiz-start-label"
+          for="start-time"
+          class="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Start Time <span class="text-destructive">*</span>
+        </label>
+        <input
+          placeholder="mm/dd/yyyy --:-- --"
+          id="start-time"
+          #startTimeInput
+          hlmInput
+          type="datetime-local"
+          formControlName="startTime"
+          class="form-input"
+          [min]="minDateTime"
+        />
+        <div
+          class="mt-2 text-sm text-destructive"
+          *ngIf="quizForm.get('startTime')?.hasError('minDateTime')"
+        >
+          Start time must be at least 1 minute from now.
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions List -->
+    <div *ngIf="questions.length > 0">
+      <h2 class="text-xl font-semibold text-foreground mb-4">
+        Questions ({{ questions.length }})
+      </h2>
+      <div class="space-y-4">
+        <div
+          *ngFor="let question of questions.controls; let i = index"
+          class="card p-4 space-y-4"
+        >
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-semibold text-foreground">
+                Question {{ i + 1 }} (<span class="text-primary"
+                  >{{ question.value.points }} points</span
+                >)
+              </p>
+              <p class="text-sm text-gray-500 mt-1">
+                {{
+                  question.value.type === "mcq" ? "Multiple Choice" : "Written"
+                }}
+              </p>
+            </div>
+            <button
+              class="text-red-500 hover:text-red-700"
+              (click)="removeQuestion(i)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-trash2-icon lucide-trash-2 cursor-pointer"
+              >
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-gray-700">
+            <span class="text-destructive font-semibold">Question:</span>
+            {{ question.value.text }} ?
+          </p>
+
+          <!-- Options for MCQ -->
+          <div
+            *ngIf="question.value.type === 'mcq'"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2"
+          >
+            <div
+              *ngFor="let option of getOptions(i).controls; let j = index"
+              [ngClass]="{
+                'p-3 rounded-md flex justify-between items-center': true,
+                'bg-green-100 border border-success text-success':
+                  option.value.isCorrect,
+                'bg-gray-50': !option.value.isCorrect
+              }"
+            >
+              <span>{{ option.value.text }}</span>
+              <button type="button" (click)="setCorrectOption(i, j)">
+                <svg
+                  *ngIf="option.value.isCorrect"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                  <path d="m9 11 3 3L22 4" />
+                </svg>
+                <span>
+                  <svg
+                    *ngIf="!option.value.isCorrect"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-circle-icon lucide-circle"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Question Form -->
+    <div class="card">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">Add New Question</h2>
+      <div class="space-y-6">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700"
+            >Question <span class="text-destructive">*</span></label
+          >
+          <textarea
+            #question
+            (keydown.enter)="focusNext(points)"
+            hlmInput
+            [formControl]="newQuestionText"
+            class="form-input"
+            maxlength="100"
+            placeholder="Enter your question"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Question Type</label
+            >
+            <brn-select
+              [formControl]="newQuestionType"
+              placeholder="Select type"
+            >
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content>
+                <hlm-option value="mcq">MCQ</hlm-option>
+                <hlm-option value="written">Written</hlm-option>
+              </hlm-select-content>
+            </brn-select>
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Points <span class="text-destructive">*</span></label
+            >
+            <input
+              #points
+              hlmInput
+              type="number"
+              min="1"
+              max="100"
+              [formControl]="newQuestionPoints"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div *ngIf="newQuestionType.value === 'mcq'" class="space-y-3 mt-4">
+          <h3 class="font-medium text-gray-700">
+            Options <span class="text-destructive">*</span>
+          </h3>
+
+          <div
+            *ngFor="let optCtrl of tempOptionControls.controls; let i = index"
+            class="flex items-center gap-2"
+          >
+            <!-- Option input -->
+            <input
+              hlmInput
+              type="text"
+              maxlength="50"
+              [formControl]="optCtrl"
+              placeholder="Enter option {{ i + 1 }}"
+              class="form-input flex-1"
+              #optionInput
+              (keydown.enter)="
+                focusNext(optionInputs.toArray()[i + 1].nativeElement)
+              "
+            />
+
+            <!-- Correct button -->
+            <button
+              hlmBtn
+              type="button"
+              variant="outline"
+              class="max-sm:w-14"
+              [ngClass]="{
+                'btn-active text-white': tempCorrectIndex === i,
+                '': tempCorrectIndex !== i
+              }"
+              (click)="setTempCorrect(i)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-check-icon lucide-check hidden max-sm:block"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <span class="sm:block hidden">Correct</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            hlmBtn
+            class="flex items-center gap-2 py-5 max-sm:w-full"
+            variant="destructive"
+            type="button"
+            (click)="addNewQuestion()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-circle-plus-icon lucide-circle-plus"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 12h8" />
+              <path d="M12 8v8" />
+            </svg>
+            Add Question
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Create Quiz by AI Dialog -->
+
+    <div class="flex justify-center mt-6">
+      <hlm-dialog>
+        <!-- Trigger button -->
+        <button
+          brnDialogTrigger
+          hlmBtn
+          type="button"
+          class="px-6 py-5 text-white"
+        >
+          Submit Quiz
+        </button>
+
+        <!-- Dialog content -->
+        <hlm-dialog-content
+          *brnDialogContent="let ctx"
+          class="max-sm:w-[95%] max-sm:mx-auto"
+        >
+          <hlm-dialog-header>
+            <div class="flex items-center gap-2 mb-5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-package-plus-icon lucide-package-plus w-10 h-10 bg-primary-soft p-2 text-primary rounded-main"
+              >
+                <path d="M16 16h6" />
+                <path d="M19 13v6" />
+                <path
+                  d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"
+                />
+                <path d="m7.5 4.27 9 5.15" />
+                <polyline points="3.29 7 12 12 20.71 7" />
+                <line x1="12" x2="12" y1="22" y2="12" />
+              </svg>
+              <h3
+                brnDialogTitle
+                hlm
+                class="flex items-center gap-2 text-xl font-semibold"
+              >
+                Submit Quiz
+              </h3>
+            </div>
+            <p brnDialogDescription hlm>
+              Are you sure you need to submit the quiz?
+            </p>
+          </hlm-dialog-header>
+          <hlm-dialog-footer class="gap-y-2">
+            <!-- Cancel just closes -->
+            <button hlmBtn variant="outline" (click)="ctx.close()">
+              Cancel
+            </button>
+            <!-- Confirm calls submit() -->
+            <button hlmBtn type="button" (click)="submit(ctx)">
+              Yes, Submit
+            </button>
+          </hlm-dialog-footer>
+        </hlm-dialog-content>
+      </hlm-dialog>
+    </div>
+  </div>
+</section>

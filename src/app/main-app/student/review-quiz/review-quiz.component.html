@@ -1,0 +1,164 @@
+<app-header></app-header>
+<section
+  class="lg:max-w-[70%] p-8 max-sm:px-2 max-sm:pt-0 max-sm:pb-6 mx-auto max-sm:mb-[3rem] min-h-[calc(100dvh-4rem)] max-sm:min-h-[calc(100dvh-3.5rem)]"
+  *ngIf="quiz"
+>
+  <!-- Header -->
+  <div class="max-sm:mb-1 text-center">
+    <h2 class="text-foreground text-3xl font-semibold mt-5 max-sm:hidden">
+      Quiz Result
+    </h2>
+    <p
+      class="text-base max-sm:text-xl max-sm:font-semibold text-[var(--text-secondary)] mt-1 max-sm:py-4"
+    >
+      Quiz: {{ quiz.title }} | Student: {{ "N/A" }}
+    </p>
+    <button
+      variant="outline"
+      hlmBtn
+      class="flex items-center group max-sm:hidden mb-4"
+      (click)="goBack()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-arrow-big-left-icon lucide-arrow-big-left transition-transform group-hover:-translate-x-1"
+      >
+        <path
+          d="M13 9a1 1 0 0 1-1-1V5.061a1 1 0 0 0-1.811-.75l-6.835 6.836a1.207 1.207 0 0 0 0 1.707l6.835 6.835a1 1 0 0 0 1.811-.75V16a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z"
+        />
+      </svg>
+      <span class="text-base">Back</span>
+    </button>
+  </div>
+
+  <!-- Summary -->
+  <div class="card mb-12">
+    <h3 class="text-xl font-bold text-foreground mb-4">Summary</h3>
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center"
+    >
+      <div
+        class="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center"
+      >
+        <p class="text-2xl font-bold text-primary">
+          <span>{{ quiz.grade ?? 0 }}/{{ getTotalPoints(quiz) }}</span>
+          <span class="text-lg font-semibold text-muted-foreground">
+            ({{
+              ((quiz.grade ?? 0) / getTotalPoints(quiz)) * 100
+                | number : "1.0-0"
+            }}%)
+          </span>
+        </p>
+        <p class="text-sm text-muted-foreground mt-1">Score</p>
+      </div>
+      <div
+        class="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center"
+      >
+        <p class="text-2xl font-bold text-foreground">
+          Time Taken: {{ formattedTimeSpent }}
+        </p>
+        <p class="text-sm text-muted-foreground mt-1">Time Taken</p>
+      </div>
+      <div
+        class="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center"
+      >
+        <p class="text-2xl font-bold text-foreground">
+          Duration: {{ quiz.duration }} min
+        </p>
+        <p class="text-sm text-muted-foreground mt-1">Duration</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div
+    *ngFor="let q of quiz.questions; let i = index"
+    class="card mb-12 max-sm:mb-6 last:mb-0"
+  >
+    <div class="flex justify-between items-start">
+      <p class="text-lg font-semibold text-primary mb-4 break-words">
+        <span class="font-bold">{{ i + 1 }}.</span> {{ q.text }}
+      </p>
+      <div
+        [ngClass]="{
+          'text-green-600 bg-green-100 ': isCorrect(q),
+          'text-red-600 bg-red-100 ': !isCorrect(q)
+        }"
+        class="flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap"
+      >
+        <span>{{ isCorrect(q) ? "Correct" : "Incorrect" }}</span>
+      </div>
+    </div>
+
+    <div class="space-y-3 mt-4">
+      <div
+        *ngFor="let o of q.options"
+        class="flex items-center p-4 rounded-md border-2 border-border cursor-pointer transition-colors"
+        [ngClass]="{
+          'bg-green-50 border-success font-semibold':
+            correctOptionId(q) === o.id,
+          'bg-green-100 font-semibold': isSelected(q, o.id) && isCorrect(q),
+          'bg-red-50 border-destructive font-semibold':
+            isSelected(q, o.id) && !isCorrect(q)
+        }"
+      >
+        <div class="flex items-center justify-between w-full">
+          <div class="max-w-[90%]">
+            <p>{{ o.text }}</p>
+          </div>
+
+          <svg
+            class="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              class="text-success"
+              *ngIf="correctOptionId(q) === o.id"
+              clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              fill-rule="evenodd"
+            ></path>
+            <path
+              class="text-destructive"
+              *ngIf="isSelected(q, o.id) && !isCorrect(q)"
+              clip-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              fill-rule="evenodd"
+            ></path>
+          </svg>
+        </div>
+      </div>
+
+      <div *ngIf="q.type === 'written'" class="mt-4 p-4 bg-gray-50 rounded-md">
+        <p class="text-sm text-gray-700">
+          <strong>Your Answer:</strong>
+          {{ quiz.studentAnswers?.[q.id] || '-' }}
+        </p>
+      </div>
+
+      <!-- Points per question -->
+      <p class="text-sm font-semibold text-foreground mt-4">
+        Points: {{ getQuestionScore(q) }} / {{ q.points }}
+      </p>
+    </div>
+
+    <div
+      *ngIf="questionExplanations[q.id]"
+      class="mt-4 p-4 bg-warning-soft rounded-md text-left"
+    >
+      <p class="text-sm text-yellow-700">
+        <strong>Explanation:</strong> {{ questionExplanations[q.id] }}
+      </p>
+    </div>
+  </div>
+</section>
